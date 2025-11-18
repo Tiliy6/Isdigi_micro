@@ -33,11 +33,25 @@
 			wreg = 0;
 			wData = 4'h00A1;
 			rReg1 = 0;
-			@(rData1)
+			@(posedge CLK)
 			assert (rData1 == 0) else $error("El primer valor del banco  de registros no es 0")
 		end
 	endtask
 	
+	
+	task lectura_escritura_smultanea;
+		begin
+			wReg  = 5'b01101;
+			wData = 4'hA234;
+			repeat(2) @(posedge CLK)
+			rReg1 = 5'b01101;
+			@(rData1)
+			assert (radata1 == 4'hA234) else $error("No escribe correctamente")
+			
+		end
+	endtask
+			
+			
 	
 endmodule
 			
