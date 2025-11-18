@@ -14,12 +14,24 @@ module ALU (
             4'b0010: ALU_result = A & B;                 // AND
             4'b0011: ALU_result = A | B;                 // OR
             4'b0100: ALU_result = A ^ B;                 // XOR
-            4'b0101: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT
-            4'b0110: ALU_result = A << B[4:0];           // SLL
-            4'b0111: ALU_result = A >> B[4:0];           // SRL (lógico)
-            4'b1000: ALU_result = $signed(A) >>> B[4:0]; // SRA (aritmético)
+
+            // SHIFT LEFT LOGIC
+            4'b0101: ALU_result = A << B[4:0];           // SLL
+
+            // SHIFT RIGHT LOGIC
+            4'b0110: ALU_result = A >> B[4:0];           // SRL
+
+            // SHIFT RIGHT ARITHMETIC (CON SIGNO)
+            4'b0111: ALU_result = $signed(A) >>> B[4:0]; // SRA
+
+            // LESS THAN (unsigned)
+            4'b1000: ALU_result = (A < B) ? 32'd1 : 32'd0;   // SLTU
+
+            // LESS THAN (signed)
+            4'b1001: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT
 
             default: ALU_result = 32'd0;
+
         endcase
     end
 
