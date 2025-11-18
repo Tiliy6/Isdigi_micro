@@ -1,48 +1,50 @@
-module banco_registros(CLK, readReg1, readReg2, writeReg, writeData, readData1, readData2, RegWrite)
+module banco_registros(CLK, readReg1, readReg2, writeReg, writeData, readData1, readData2, RegWrite);
 input [4:0] readReg1, readReg2, writeReg;
 input CLK, RegWrite; //RegWrite enable de escritura
 input [31:0] writeData;
 output [31:0] readData1, readData2;
 logic [31:0][31:0]registro; //x0=registro[0],x1=registro[1], ect
 
-assign registro[0]=0
+
 
 always_ff @(posedge CLK)
 	if(RegWrite)
 		case(writeReg)
-			5'b00000: writeData = registro[0];
-			5'b00001: writeData = registro[1];
-			5'b00010: writeData = registro[2];
-			5'b00011: writeData = registro[3];
-			5'b00100: writeData = registro[4];
-			5'b00101: writeData = registro[5];
-			5'b00110: writeData = registro[6];
-			5'b00111: writeData = registro[7];
-			5'b01000: writeData = registro[8];
-			5'b01001: writeData = registro[9];
-			5'b01010: writeData = registro[10];
-			5'b01011: writeData = registro[11];
-			5'b01100: writeData = registro[12];
-			5'b01101: writeData = registro[13];
-			5'b01110: writeData = registro[14];
-			5'b01111: writeData = registro[15];
-			5'b10000: writeData = registro[16];
-			5'b10001: writeData = registro[17];
-			5'b10010: writeData = registro[18];
-			5'b10011: writeData = registro[19];
-			5'b10100: writeData = registro[20];
-			5'b10101: writeData = registro[21];
-			5'b10110: writeData = registro[22];
-			5'b10111: writeData = registro[23];
-			5'b11000: writeData = registro[24];
-			5'b11001: writeData = registro[25];
-			5'b11010: writeData = registro[26];
-			5'b11011: writeData = registro[27];
-			5'b11100: writeData = registro[28];
-			5'b11101: writeData = registro[29];
-			5'b11110: writeData = registro[30];
-			5'b11111: writeData = registro[31];
-
+			5'b00000: registro[0] = 0;
+			5'b00001: registro[1] = writeData;
+			5'b00010: registro[2] = writeData;
+			5'b00011: registro[3] = writeData;
+			5'b00100: registro[4] = writeData;
+			5'b00101: registro[5] = writeData;
+			5'b00110: registro[6] = writeData;
+			5'b00111: registro[7] = writeData;
+			5'b01000: registro[8] = writeData;
+			5'b01001: registro[9] = writeData;
+			5'b01010: registro[10] = writeData;
+			5'b01011: registro[11] = writeData;
+			5'b01100: registro[12] = writeData;
+			5'b01101: registro[13] = writeData;
+			5'b01110: registro[14] = writeData;
+			5'b01111: registro[15] = writeData;
+			5'b10000: registro[16] = writeData;
+			5'b10001: registro[17] = writeData;
+			5'b10010: registro[18] = writeData;
+			5'b10011: registro[19] = writeData;
+			5'b10100: registro[20] = writeData;
+			5'b10101: registro[21] = writeData;
+			5'b10110: registro[22] = writeData;
+			5'b10111: registro[23] = writeData;
+			5'b11000: registro[24] = writeData;
+			5'b11001: registro[25] = writeData;
+			5'b11010: registro[26] = writeData;
+			5'b11011: registro[27] = writeData;
+			5'b11100: registro[28] = writeData;
+			5'b11101: registro[29] = writeData;
+			5'b11110: registro[30] = writeData;
+			5'b11111: registro[31] = writeData;
+			default registro = 0;
+			endcase
+			
 always_comb
 	case(readReg1)
 	5'b00000: readData1 = registro[0];
@@ -77,6 +79,8 @@ always_comb
 	5'b11101: readData1 = registro[29];
 	5'b11110: readData1 = registro[30];
 	5'b11111: readData1 = registro[31];
+	default readData1 = 0;
+	endcase
 	
 always_comb
 	case(readReg2)
@@ -112,6 +116,8 @@ always_comb
 	5'b11101: readData2 = registro[29];
 	5'b11110: readData2 = registro[30];
 	5'b11111: readData2 = registro[31];
+	default readData2 = 0;
+	endcase
 
 	
 endmodule
