@@ -1,9 +1,9 @@
 module ALU (
-    input      [31:0] A,
-    input      [31:0] B,
-    input      [3:0]  ALU_control,
-    output reg [31:0] ALU_result,
-    output            zero
+    input logic	 [31:0] A,
+    input logic      [31:0] B,
+    input logic     [3:0]  ALU_control,
+    output logic [31:0] ALU_result,
+    output logic          zero
 );
 
     always @(*) begin
@@ -38,3 +38,4 @@ module ALU (
     assign zero = (ALU_result == 32'd0);
 
 endmodule
+
