@@ -107,7 +107,44 @@ module tb_ALU();
 		end
 	endtask
 	
-	assert property (@(posedge CLOCK) (ALU_control == 4'b0000) |-> (ALU_result = A + B))	else	$error("La operacion no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0000) |-> (ALU_result = A + B))	else	$error("La operacion ADD no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0001) |-> (ALU_result = A + B))	else	$error("La operacion SUB no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0010) |-> (ALU_result = A + B))	else	$error("La operacion AND no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0011) |-> (ALU_result = A + B))	else	$error("La operacion OR no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0100) |-> (ALU_result = A + B))	else	$error("La operacion XOR no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0101) |-> (ALU_result = A + B))	else	$error("La operacion SLL no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0110) |-> (ALU_result = A + B))	else	$error("La operacion SRL no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0111) |-> (ALU_result = A + B))	else	$error("La operacion SRA no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b1000) |-> (ALU_result = A + B))	else	$error("La operacion SLTU no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b1001) |-> (ALU_result = A + B))	else	$error("La operacion SLT no se ha realizado de manera correcta");
+
+	initial 
+	begin
+	$display("Running testbench");
+	@(negedge CLOCK)
+	op_ADD();
+	@(negedge CLOCK)
+	op_SUB();
+	@(negedge CLOCK)
+	op_AND();
+	@(negedge CLOCK)
+	op_OR();
+	@(negedge CLOCK)
+	op_XOR();
+	@(negedge CLOCK)
+	op_SLL();
+	@(negedge CLOCK)
+	op_SRL();
+	@(negedge CLOCK)
+	op_SRA();
+	@(negedge CLOCK)
+	op_SLTU();
+	@(negedge CLOCK)
+	op_SLT();
+	repeat(5) @(negedge CLOCK)
+		
+	$stop;
+	end
 
 	
 endmodule
