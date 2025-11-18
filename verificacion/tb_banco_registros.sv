@@ -33,23 +33,38 @@
 			wreg = 0;
 			wData = 4'h00A1;
 			rReg1 = 0;
-			@(posedge CLK)
+			@(posedge CLK);
 			assert (rData1 == 0) else $error("El primer valor del banco  de registros no es 0")
 		end
 	endtask
 	
 	
-	task lectura_escritura_smultanea;
+	task escritura correcta;
 		begin
 			wReg  = 5'b01101;
 			wData = 4'hA234;
-			repeat(2) @(posedge CLK)
+			repeat(2) @(posedge CLK);
 			rReg1 = 5'b01101;
-			@(rData1)
-			assert (radata1 == 4'hA234) else $error("No escribe correctamente")
+			@(rData1);
+			assert (radata1 == 4'hA234) else $error("No escribe correctamente");
 			
 		end
 	endtask
+	
+	task lectura_escritura_simultanea;
+		begin
+			wReg = 5'b10000;
+			wData = 4'h1234;
+			@(posedge CLK);
+			wReg = 5'b11000;
+			wData = 4'h2345;
+			@(posedge CLK);
+			rReg1 = 5'b10000;
+			rReg2 = 5'b11000;
+			@(rData1);
+			assert (rData1 == 4'h1234 && rData2 == 4'h2345) else $error("La lectura no es simultanea");
+			
+			
 			
 			
 	
