@@ -7,9 +7,12 @@ logic [31:0][31:0]registro; //x0=registro[0],x1=registro[1], ect
 
 
 always_ff @(posedge CLK)
-	if(RegWrite)
-		registro[writeReg] = writeData;
-			
+	begin
+		registro[0] <= 0;
+		if(RegWrite && (writeReg != 5'd0))
+			registro[writeReg] <= writeData;
+	end
+	
 always_comb
 	readData1 = registro[readReg1];
 	
