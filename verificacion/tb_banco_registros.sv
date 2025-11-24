@@ -39,7 +39,7 @@
 	endtask
 	
 	
-	task escritura correcta;
+	task escritura_correcta;
 		begin
 			wReg  = 5'b01101;
 			wData = 4'hA234;
@@ -65,6 +65,17 @@
 			assert (rData1 == 4'h1234 && rData2 == 4'h2345) else $error("La lectura no es simultanea");
 			
 			
+			
+	initial
+	begin
+	x0_a_cero();
+	@(negedge CLK);
+	escritura_correcta();
+	@(negedge CLK);
+	lectura_escritura_simultanea();
+	end
+	
+	
 			
 			
 	
