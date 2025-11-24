@@ -1,4 +1,4 @@
-module banco_registros2(CLK, readReg1, readReg2, writeReg, writeData, readData1, readData2, RegWrite);
+module banco_registros(CLK, readReg1, readReg2, writeReg, writeData, readData1, readData2, RegWrite);
 input [4:0] readReg1, readReg2, writeReg;
 input CLK, RegWrite; //RegWrite enable de escritura
 input [31:0] writeData;
