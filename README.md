@@ -1,2 +1,2 @@
 # Isdigi_micro
-microprocesador de risc-V hehco en system verilog para Isdigi
+microprocesador de risc-V hecho en SystemVerilog para ISDIGI
