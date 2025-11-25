@@ -1,16 +1,18 @@
 module CONTROL(
-    input  logic [31:0] instruction,  
+    input  logic [31:0] instruction,   // instrucción completa RISC-V
     output logic        Branch,
     output logic        MemRead,
     output logic        MemtoReg,
     output logic  [1:0] ALUOp,
     output logic        MemWrite,
     output logic        ALUSrc,
-    output logic        RegWrite
+    output logic        RegWrite,
+	 output logic        AuipcLui
 );
 
+
     logic [4:0] opcode;
-  assign opcode = instruction[6:2]; //todos los upcode tienen en comun los dos primeros bits, asi que podemos reducirlo a 5 bits.
+    assign opcode = instruction[6:2];
 
     always_comb begin
         Branch    = 0;
@@ -20,7 +22,7 @@ module CONTROL(
         MemWrite  = 0;
         ALUSrc    = 0;
         RegWrite  = 0;
-
+		  AuipcLui  = 0;
         case (opcode)
 
             // R-format
@@ -57,6 +59,19 @@ module CONTROL(
                 Branch    = 1;
                 ALUOp     = 2'b01;
             end
+				
+				// LUI
+				7'b01101: begin
+					 RegWrite  = 1;
+					 AuipcLui  = 1;
+				end
+
+				// AUIPC
+				7'b00101: begin
+					 RegWrite  = 1;
+					 AuipcLui  = 1;
+				end
+
 
         endcase
     end
