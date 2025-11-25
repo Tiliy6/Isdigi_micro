@@ -1,41 +1,160 @@
-module ALU (
-    input logic	 [31:0] A,
-    input logic      [31:0] B,
-    input logic     [3:0]  ALU_control,
-    output logic [31:0] ALU_result,
-    output logic          zero
-);
+`timescale 1ns/1ps
 
-    always @(*) begin
-        case (ALU_control)
+module tb_ALU();
 
-            4'b0000: ALU_result = A + B;                 // ADD
-            4'b0001: ALU_result = A - B;                 // SUB
-            4'b0010: ALU_result = A & B;                 // AND
-            4'b0011: ALU_result = A | B;                 // OR
-            4'b0100: ALU_result = A ^ B;                 // XOR
+	parameter T = 20;
+	
+	reg CLOCK;
+	reg [31:0] A, B;
+	reg [3:0] ALU_control;
+	wire zero;
+	wire [31:0] ALU_result;
+	
+	ALU duv
+	(
+		.A(A) ,
+		.B(B) ,
+		.ALU_control(ALU_control) ,
+		.zero(zero) ,
+		.ALU_result(ALU_result)
+	);
+	
+//Clock generation
+	always 
+	begin 
+	#(T/2) CLOCK = ~CLOCK;
+	end
+	
+//Tasks								
+	task op_ADD;
+		begin
+			A = $random;
+			B = $random;
+			@(posedge CLOCK);
+			ALU_control = 4'b0000;
+		end
+	endtask
+	
+	task op_SUB;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b0001;
+		end
+	endtask
+	
+	task op_AND;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b0010;
+		end
+	endtask
 
-            // SHIFT LEFT LOGIC
-            4'b0101: ALU_result = A << B[4:0];           // SLL
+	task op_OR;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b0011;
+		end
+	endtask
 
-            // SHIFT RIGHT LOGIC
-            4'b0110: ALU_result = A >> B[4:0];           // SRL
+	task op_XOR;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b0100;
+		end
+	endtask
+	
+	task op_SLL;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b0101;
+		end
+	endtask
+	
+	task op_SRL;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b0110;
+		end
+	endtask
+	
+	task op_SRA;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b0111;
+		end
+	endtask
 
-            // SHIFT RIGHT ARITHMETIC (CON SIGNO)
-            4'b0111: ALU_result = $signed(A) >>> B[4:0]; // SRA
+	task op_SLTU;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b1000;
+		end
+	endtask
+	
+	task op_SLT;
+		begin
+			A = $random;
+			B = $random;
+			ALU_control = 4'b1001;
+		end
+	endtask
+	
+	task inicializar;
+		begin
+			CLOCK = 0;
+			A = '0;
+			B = '0;
+			ALU_control = '0;
+		end
+	endtask 
+	
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0000) |-> (ALU_result == A + B))	else	$error("La operacion ADD no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0001) |-> (ALU_result == A - B))	else	$error("La operacion SUB no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0010) |-> (ALU_result == (A&B)))	else	$error("La operacion AND no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0011) |-> (ALU_result == A | B))	else	$error("La operacion OR no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0100) |-> (ALU_result == A ^ B))	else	$error("La operacion XOR no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0101) |-> (ALU_result == A << B[4:0]))	else	$error("La operacion SLL no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0110) |-> (ALU_result == A >> B[4:0]))	else	$error("La operacion SRL no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b0111) |-> (ALU_result == $signed(A) >>> B[4:0]))	else	$error("La operacion SRA no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b1000) |-> (ALU_result == (A < B)))	else	$error("La operacion SLTU no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (ALU_control == 4'b1001) |-> (ALU_result == $signed(A) < $signed(B)))	else	$error("La operacion SLT no se ha realizado de manera correcta");
 
-            // LESS THAN (unsigned)
-            4'b1000: ALU_result = (A < B) ? 32'd1 : 32'd0;   // SLTU
+	initial 
+	begin
+	$display("Running testbench");
+	inicializar();
+	@(negedge CLOCK)
+	op_ADD();
+	@(negedge CLOCK)
+	op_SUB();
+	@(negedge CLOCK)
+	op_AND();
+	@(negedge CLOCK)
+	op_OR();
+	@(negedge CLOCK)
+	op_XOR();
+	@(negedge CLOCK)
+	op_SLL();
+	@(negedge CLOCK)
+	op_SRL();
+	@(negedge CLOCK)
+	op_SRA();
+	@(negedge CLOCK)
+	op_SLTU();
+	@(negedge CLOCK)
+	op_SLT();
+	repeat(10) @(negedge CLOCK)
+		
+	$stop;
+	end
 
-            // LESS THAN (signed)
-            4'b1001: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT
-
-            default: ALU_result = 32'd0;
-
-        endcase
-    end
-
-    assign zero = (ALU_result == 32'd0);
-
+	
 endmodule
-
