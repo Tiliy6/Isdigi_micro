@@ -1,5 +1,5 @@
 module CONTROL(
-    input  logic [31:0] instruction,   // instrucción completa RISC-V
+    input  logic [31:0] instruction,  
     output logic        Branch,
     output logic        MemRead,
     output logic        MemtoReg,
