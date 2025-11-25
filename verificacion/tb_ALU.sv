@@ -171,6 +171,8 @@ module tb_ALU();
 	op_SLT();
 	@(negedge CLOCK)
 	activo_zero();
+	@(negedge CLOCK)
+	activo_zero2();
 	repeat(10) @(negedge CLOCK)
 	$stop;
 	end
