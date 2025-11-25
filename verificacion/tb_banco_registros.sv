@@ -30,11 +30,11 @@
 	
 	task x0_a_cero;
 		begin
-			wreg = 0;
+			wReg = 0;
 			wData = 4'h00A1;
 			rReg1 = 0;
 			@(posedge CLK);
-			assert (rData1 == 0) else $error("El primer valor del banco  de registros no es 0")
+			assert (rData1 == 0) else $error("El primer valor del banco  de registros no es 0");
 		end
 	endtask
 	
@@ -46,7 +46,7 @@
 			repeat(2) @(posedge CLK);
 			rReg1 = 5'b01101;
 			@(rData1);
-			assert (radata1 == 4'hA234) else $error("No escribe correctamente");
+			assert (rData1 == 4'hA234) else $error("No escribe correctamente");
 			
 		end
 	endtask
@@ -64,6 +64,8 @@
 			@(rData1);
 			assert (rData1 == 4'h1234 && rData2 == 4'h2345) else $error("La lectura no es simultanea");
 			
+		end
+	endtask
 			
 			
 	initial
