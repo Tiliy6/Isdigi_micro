@@ -1,8 +1,8 @@
 `timescale 1ns/1ps
 	module tb_RAM();
 	
-	parameter ANCHO = 32            
-   parameter LARGO = 1024    
+	parameter ANCHO = 32;        
+   	parameter LARGO = 1024;
 	
 	logic 		CLK, write_enable;
 	logic [$clog2(LARGO)-1:0] addr;
@@ -33,7 +33,7 @@
 			addr  = 5'b01101;
 			din = 4'hA234;
 			repeat(2) @(posedge CLK);
-			rReg1 = 5'b01101;
+			addr = 5'b01101;
 			@(dout);
 			assert (dout == 4'hA234) else $error("No escribe correctamente");
 			
@@ -49,7 +49,8 @@
 			write_enable=1'b0;
 			@(dout);
 			assert (dout == 4'h1234) else $error("La lectura no es simultanea");
-			
+		end
+	endtask
 			
 			
 	initial
