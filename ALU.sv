@@ -29,10 +29,7 @@ module ALU (
 
             // LESS THAN (signed)
             4'b1001: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT
-				// MAYOR QUE // BLTU
-				// MAYOR QUE CON SIGNO // BLT 
-				//BNE
-
+				
             default: ALU_result = 32'd0;
 
         endcase
