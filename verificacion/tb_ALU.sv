@@ -5,7 +5,7 @@ module tb_ALU();
 	parameter T = 20;
 	
 	reg CLOCK;
-	reg [31:0] A, B;
+	reg signed [31:0] A, B;
 	reg [3:0] ALU_control;
 	wire zero;
 	wire [31:0] ALU_result;
@@ -116,6 +116,23 @@ module tb_ALU();
 		end
 	endtask 
 	
+	task activo_zero;
+		begin
+			A = 32'd199;
+			B = 32'd100;
+			ALU_control = 4'b1000;
+		end
+	endtask
+	
+	task activo_zero2;
+		begin
+			A = 32'sd199;
+			B = -32'sd100;
+			ALU_control = 4'b1001;
+		end
+	endtask
+	
+	
 	assert property (@(posedge CLOCK) (ALU_control == 4'b0000) |-> (ALU_result == A + B))	else	$error("La operacion ADD no se ha realizado de manera correcta");
 	assert property (@(posedge CLOCK) (ALU_control == 4'b0001) |-> (ALU_result == A - B))	else	$error("La operacion SUB no se ha realizado de manera correcta");
 	assert property (@(posedge CLOCK) (ALU_control == 4'b0010) |-> (ALU_result == (A&B)))	else	$error("La operacion AND no se ha realizado de manera correcta");
@@ -126,6 +143,7 @@ module tb_ALU();
 	assert property (@(posedge CLOCK) (ALU_control == 4'b0111) |-> (ALU_result == $signed(A) >>> B[4:0]))	else	$error("La operacion SRA no se ha realizado de manera correcta");
 	assert property (@(posedge CLOCK) (ALU_control == 4'b1000) |-> (ALU_result == (A < B)))	else	$error("La operacion SLTU no se ha realizado de manera correcta");
 	assert property (@(posedge CLOCK) (ALU_control == 4'b1001) |-> (ALU_result == $signed(A) < $signed(B)))	else	$error("La operacion SLT no se ha realizado de manera correcta");
+	assert property (@(posedge CLOCK) (zero == 1'b1) |-> (ALU_result == '0))	else	$error("La salida zero se activa de manera incorrecta");
 
 	initial 
 	begin
@@ -151,8 +169,9 @@ module tb_ALU();
 	op_SLTU();
 	@(negedge CLOCK)
 	op_SLT();
+	@(negedge CLOCK)
+	activo_zero();
 	repeat(10) @(negedge CLOCK)
-		
 	$stop;
 	end
 
