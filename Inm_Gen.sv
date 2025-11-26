@@ -1,10 +1,13 @@
-module Inm_Gen(
+mmodule Inm_Gen(
     input  logic [31:0] inst, 
-    input  logic [6:0]  op_code, 
     output logic [31:0] inm
 );
 
-    // Definir parámetros para los tipos de formato
+    // Extraemos opcode directamente de la instrucción
+    logic [6:0] op_code;
+    assign op_code = inst[6:0];
+
+    // Codificación de formatos RISC-V
     localparam I_Format = 7'b0010011;
     localparam S_Format = 7'b0100011;
     localparam B_Format = 7'b1100011;
@@ -13,13 +16,40 @@ module Inm_Gen(
 
     always_comb begin
         case (op_code)
-            I_Format: inm = {{21{inst[31]}}, inst[30:20]};
-            S_Format: inm = {{21{inst[31]}}, inst[30:25], inst[11:7]};
-            B_Format: inm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
-            U_Format: inm = {inst[31:12], 12'b0};
-            J_Format: inm = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
-            default:  inm = {{21{inst[31]}}, inst[30:20]}; // por defecto I-Format
+
+            // -------- I-FORMAT --------
+            I_Format: begin
+                inm = {{21{inst[31]}}, inst[30:20]};
+            end
+
+            // -------- S-FORMAT --------
+            S_Format: begin
+                inm = {{21{inst[31]}}, inst[30:25], inst[11:7]};
+            end
+
+            // -------- B-FORMAT --------
+            B_Format: begin
+                inm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
+            end
+
+            // -------- U-FORMAT --------
+            U_Format: begin
+                inm = {inst[31:12], 12'b0};
+            end
+
+            // -------- J-FORMAT --------
+            J_Format: begin
+                inm = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
+            end
+
+            // -------- DEFAULT = I-FORMAT --------
+            default: begin
+                inm = {{21{inst[31]}}, inst[30:20]};
+            end
+
         endcase
     end
 
 endmodule
+
+
