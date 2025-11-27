@@ -72,7 +72,7 @@
 	begin
 	CLK = 0;
 	RegWrite = 0;
-   rReg1 = 0;
+    rReg1 = 0;
 	rReg2 = 0;
 	wReg = 0;
 	wData = 0;
@@ -84,10 +84,8 @@
 	lectura_escritura_simultanea();
 	@(negedge CLK);
 	$display("Test finished");
-   $stop;
+    $stop;
 	end
 	
 	
 endmodule
-
-
