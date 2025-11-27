@@ -70,7 +70,7 @@
 			
 	initial
 	begin
-	CLK=0;
+	CLK = 0;
 	RegWrite = 0;
    rReg1 = 0;
 	rReg2 = 0;
@@ -89,4 +89,5 @@
 	
 	
 endmodule
+
 
