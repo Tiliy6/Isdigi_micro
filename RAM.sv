@@ -4,7 +4,7 @@ module RAM #(
     parameter LARGO = 1024,            // número de posiciones
     parameter INIT_FILE = ""           // fichero de inicialización
 )(
-    input                        clk,
+    input                        CLK,
     input                        write_enable,     // habilitación de escritura
     input                        read_enable,      // habilitación de lectura
     input  [$clog2(LARGO)-1:0]   addr,             // dirección
@@ -23,7 +23,7 @@ module RAM #(
     end
 
     // Escritura síncrona
-    always @(posedge clk) begin
+    always @(posedge CLK) begin
         if (write_enable) begin
             mem[addr] <= din;
         end
@@ -33,5 +33,3 @@ module RAM #(
     assign dout = (read_enable) ? mem[addr] : {ANCHO{1'b0}};
 
 endmodule
-
-
