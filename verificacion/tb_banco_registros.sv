@@ -33,7 +33,7 @@
 			wReg = 0;
 			wData = 4'h00A1;
 			rReg1 = 0;
-			@(posedge CLK);
+			@(negedge CLK);
 			assert (rData1 == 0) else $error("El primer valor del banco  de registros no es 0");
 		end
 	endtask
@@ -45,7 +45,7 @@
 			wData = 4'hA234;
 			repeat(2) @(negedge CLK);
 			rReg1 = 5'b01101;
-			@(rData1);
+			@(negedge CLK);
 			assert (rData1 == 4'hA234) else $error("No escribe correctamente");
 			
 		end
@@ -56,13 +56,13 @@
 			RegWrite = 1;
 			wReg = 5'b10000;
 			wData = 4'h1234;
-			@(posedge CLK);
+			@(negedge CLK);
 			wReg = 5'b11000;
 			wData = 4'h2345;
-			@(posedge CLK);
+			@(negedge CLK);
 			rReg1 = 5'b10000;
 			rReg2 = 5'b11000;
-			@(rData1);
+			@(negedge CLK);
 			assert (rData1 == 4'h1234 && rData2 == 4'h2345) else $error("La lectura no es simultanea");
 		end
 	endtask
@@ -70,6 +70,7 @@
 			
 	initial
 	begin
+	CLK=0;
 	RegWrite = 0;
    rReg1 = 0;
 	rReg2 = 0;
@@ -88,3 +89,4 @@
 	
 	
 endmodule
+
