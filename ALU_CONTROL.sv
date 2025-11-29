@@ -1,6 +1,6 @@
 module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 
-	input [1:0] ALUOp;
+	input [2:0] ALUOp;
 	input [3:0] instruction_bits;
 	output logic [3:0] ALU_control;
 
@@ -9,7 +9,7 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 	
 	case(ALUOp)
 	
-		2'b00: 
+		3'b000: 
 		begin
 		case(instruction_bits[2:0])
 			3'b000: if(instruction_bits[3] == 0)
@@ -34,7 +34,7 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 		end
 		
 	
-		2'b10: // Instrucciones tipo L y S
+		3'b010: // Instrucciones tipo L y S
 		begin
 		case(instruction_bits[2:0])
 			3'b010: ALU_control = 4'b0000; //LW y SW
@@ -43,7 +43,7 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 		end
 			
 		
-		2'b01: //Intsrucciones tipo B
+		3'b001: //Intsrucciones tipo B
 		begin
 		case(instruction_bits[2:0])
 			3'b000: ALU_control = 4'b0001; //BEQ
@@ -53,7 +53,7 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 		end
 	
 	
-		2'b11: //instrucciones tipo I
+		3'b011: //instrucciones tipo I
 		begin
 		case(instruction_bits[2:0])
 			3'b000: ALU_control = 4'b0000; //ADDi
@@ -67,7 +67,13 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 			default:ALU_control = 4'b0000;
 		endcase
 		end
-	
+		
+		
+		3'b100: //instrucciones tipo LUI y AUIPC
+		begin
+		ALU_control = 4'b0000; 
+		end
+		
 		default: ALU_control = 4'b0000;
 	endcase
 
@@ -87,5 +93,6 @@ endmodule
 		
 	
 		
+
 
 	
