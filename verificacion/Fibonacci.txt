@@ -1,7 +1,7 @@
 
     lw x7, 0(x3)
     addi x8, x3, 8 #puntero 1
-    addi x9, x3, 4 #puntero 1
+    addi x9, x3, 4 #puntero 2
     addi x10, x0, 1
     addi x11, x0, 0
     addi x12, x0, 0
@@ -20,3 +20,4 @@ INICIO:
     
 .data 
 	.word 10
+
