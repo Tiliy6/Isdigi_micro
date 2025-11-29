@@ -2,7 +2,7 @@
 	module tb_banco_registros();
 	localparam T = 20;
 	
-	logic 		CLK;
+	logic 		CLK, RST_n;
 	logic [4:0] rReg1, rReg2, wReg;
 	logic 		RegWrite;
 	logic [31:0]	wData, rData1, rData2;
@@ -10,6 +10,7 @@
 	
 	banco_registros  duv(
 	.CLK(CLK),
+	.RST_n(RST_n),
 	.readReg1(rReg1),
 	.readReg2(rReg2),
 	.writeReg(wReg),
@@ -26,14 +27,15 @@
 	 end
 	
 	
-	
 	task x0_a_cero;
 		begin
+			RST_n = 0;
 			RegWrite = 1;
 			wReg = 0;
 			wData = 4'h00A1;
 			rReg1 = 0;
 			@(negedge CLK);
+			RST_n = 1;
 			assert (rData1 == 0) else $error("El primer valor del banco  de registros no es 0");
 		end
 	endtask
@@ -50,7 +52,8 @@
 			
 		end
 	endtask
-	
+
+		
 	task lectura_escritura_simultanea;
 		begin
 			RegWrite = 1;
@@ -84,8 +87,8 @@
 	lectura_escritura_simultanea();
 	@(negedge CLK);
 	$display("Test finished");
-    $stop;
+   $stop;
 	end
 	
-	
 endmodule
+
