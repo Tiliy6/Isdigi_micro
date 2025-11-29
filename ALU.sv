@@ -1,41 +1,94 @@
-module ALU (
-    input logic	 [31:0] A,
-    input logic      [31:0] B,
-    input logic     [3:0]  ALU_control,
-    output logic [31:0] ALU_result,
-    output logic          zero
+module CONTROL(
+    input  logic [31:0] instruction,   // instrucción completa RISC-V
+    output logic        Branch,
+    output logic        MemRead,
+    output logic        MemtoReg,
+    output logic  [2:0] ALUOp,
+    output logic        MemWrite,
+    output logic        ALUSrc,
+    output logic        RegWrite,
+	 output logic  [1:0] AuipcLui
 );
 
-    always @(*) begin
-        case (ALU_control)
 
-            4'b0000: ALU_result = A + B;                 // ADD
-            4'b0001: ALU_result = A - B;                 // SUB
-            4'b0010: ALU_result = A & B;                 // AND
-            4'b0011: ALU_result = A | B;                 // OR
-            4'b0100: ALU_result = A ^ B;                 // XOR
+    logic [4:0] opcode;
+    assign opcode = instruction[6:2];
 
-            // SHIFT LEFT LOGIC
-            4'b0101: ALU_result = A << B[4:0];           // SLL
+    always_comb begin
+        Branch    = 0;
+        MemRead   = 0;
+        MemtoReg  = 0;
+        ALUOp     = 3'b000;
+        MemWrite  = 0;
+        ALUSrc    = 0;
+        RegWrite  = 0;
+		  AuipcLui  = 2'b11;
+        case (opcode)
 
-            // SHIFT RIGHT LOGIC
-            4'b0110: ALU_result = A >> B[4:0];           // SRL
+            // R-format
+            7'b01100: begin
+                ALUOp     = 3'b000;
+                RegWrite  = 1;
+            end
 
-            // SHIFT RIGHT ARITHMETIC (CON SIGNO)
-            4'b0111: ALU_result = $signed(A) >>> B[4:0]; // SRA
+            // I-format
+            7'b00100: begin
+                ALUOp     = 3'b011;
+                ALUSrc    = 1;
+                RegWrite  = 1;
+            end
 
-            // LESS THAN (unsigned)
-            4'b1000: ALU_result = (A < B) ? 32'd1 : 32'd0;   // SLTU
+            // LW
+            7'b00000: begin
+                MemRead   = 1;
+                MemtoReg  = 1;
+                ALUSrc    = 1;
+                ALUOp     = 3'b010;
+                RegWrite  = 1;
+            end
 
-            // LESS THAN (signed)
-            4'b1001: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT
+            // SW
+            7'b01000: begin
+                MemWrite  = 1;
+                ALUSrc    = 1;
+                ALUOp     = 3'b010;
+            end
+
+            // BEQ
+            7'b11000: begin
+                Branch    = 1;
+                ALUOp     = 3'b001;
+            end
 				
-            default: ALU_result = 32'd0;
+				// LUI
+				7'b01101: begin
+					 RegWrite  = 1;
+					 ALUOp     = 3'b100;
+					 ALUSrc    = 1;
+					 AuipcLui  = 2'b01;//Esto equivale a que el MUX saque un 0
+					 
+				end
+
+				// AUIPC
+				7'b00101: begin
+					 RegWrite  = 1;
+					 ALUOp     = 3'b100; 
+					 ALUSrc    = 1;
+					 AuipcLui  = 2'b00;//Esto equivale a que el MUX saque el PC
+				end
+			default: begin
+				Branch    = 0;
+				MemRead   = 0;
+				MemtoReg  = 0;
+				ALUOp     = 3'b000;
+				MemWrite  = 0;
+				ALUSrc    = 0;
+				RegWrite  = 0;
+				AuipcLui  = 2'b11;
+			end
+
 
         endcase
     end
 
-    assign zero = (ALU_result == 32'd0);
-
 endmodule
-
