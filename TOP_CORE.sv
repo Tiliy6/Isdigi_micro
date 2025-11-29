@@ -38,6 +38,7 @@ CONTROL CONTROL_inst
 banco_registros banco_registros_inst
 (
 	.CLK(CLOCK) ,	// input  CLK_sig
+	.RST_n(RST_n) ,	// input  RST_n_sig
 	.readReg1(instr[19:15]) ,	// input [4:0] readReg1_sig
 	.readReg2(instr[24:20]) ,	// input [4:0] readReg2_sig
 	.writeReg(instr[11:7]) ,	// input [4:0] writeReg_sig
