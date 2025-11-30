@@ -13,7 +13,8 @@ output logic [31:0] dataram_wr;
 logic [31:0] PC_siguiente;
 logic [31:0] regis_A, regis_B, valor_A, valor_B, inm_out;
 logic ALUSrc_sig, Branch_sig, PCSrc, zero_sig, RegWrite_sig, MemRead_sig, MemWrite_sig;
-logic [1:0] ALUOp_sig, AuipcLui_sig;
+logic [1:0] AuipcLui_sig;
+logic [2:0] ALUOp_sig;
 logic [3:0] instruction_bits_sig, ALU_operation;
 
 always_ff @(posedge CLOCK)
