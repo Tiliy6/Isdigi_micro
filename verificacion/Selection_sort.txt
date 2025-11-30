@@ -1,0 +1,18 @@
+	lw x9, 0(x3)  #n
+    addi x10, x0, 0 #i
+    addi x11, x9, -1 #n-2
+    addi x12, x0, 0 #minimo
+    addi x13, x0, 0	#j
+
+
+Loop:
+	lw x12, 0(x10)
+    addi x10,x10,1 # i = i+1
+Loop2:
+	addi x13,x13,1 # j = j+1
+    
+    
+	bne x10,x9, Loop2 #if i = n-1 acabar el loop
+	bne x10,x11, Loop #if i = n-2 acabar el loop
+.data 
+	.word 10
