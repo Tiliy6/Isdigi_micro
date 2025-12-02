@@ -1,0 +1,14 @@
+TOP_CORE TOP_CORE_inst
+(
+	.instr(instr_sig) ,	// input [31:0] instr_sig
+	.datareg_wr(datareg_wr_sig) ,	// input [31:0] datareg_wr_sig
+	.CLOCK(CLOCK_sig) ,	// input  CLOCK_sig
+	.RST_n(RST_n_sig) ,	// input  RST_n_sig
+	.PC(PC_sig) ,	// output [31:0] PC_sig
+	.ena_wr(ena_wr_sig) ,	// output  ena_wr_sig
+	.ena_rd(ena_rd_sig) ,	// output  ena_rd_sig
+	.alu_out_ext(alu_out_ext_sig) ,	// output [31:0] alu_out_ext_sig
+	.MemtoReg_sig(MemtoReg_sig_sig) ,	// output  MemtoReg_sig_sig
+	.dataram_wr(dataram_wr_sig) 	// output [31:0] dataram_wr_sig
+);
+
