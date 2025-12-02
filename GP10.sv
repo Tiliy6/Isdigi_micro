@@ -1,9 +1,8 @@
-Borrador GP10
-module GP10_periph (
+module GP10 (
   // Lado bus
   input  logic        clk,
-  input  logic        reset,      // activo alto
-  input  logic        memw,       // write enable registro 1
+  input  logic        reset,      // activo bajo
+  input  logic        write_en,       // write enable registro 1
   input  logic        read_en,    // read enable registro 2
   input  logic [15:0] dataw,      // dato que escribe el core en GP10
   output logic [15:0] datar,      // dato que lee el core desde GP10
@@ -21,11 +20,11 @@ module GP10_periph (
   // REGISTRO 1: LEDR (escritura)
   // ==============================
   // LEDR guarda dataw cuando memw=1
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
+  always_ff @(posedge clk or negedge reset) begin
+    if (!reset) begin
       LEDR <= 16'd0;
     end else begin
-      if (memw) begin
+      if (write_en) begin
         LEDR <= dataw;
       end
     end
@@ -61,7 +60,7 @@ module GP10_periph (
     m = (val / 1000)% 10;
   end
 
-  // Decoder BCD -> 7 segmentos (asumiendo activos en bajo tipo DE2-115)
+  // Decoder BCD -> 7 segmentos (asumiendo activos en bajo )
   function automatic logic [6:0] bcd_to_7seg (input logic [3:0] bcd);
     case (bcd)
       4'd0: bcd_to_7seg = 7'b1000000;
@@ -86,4 +85,4 @@ module GP10_periph (
     HEX3 = bcd_to_7seg(m); // millares
   end
 
-endmodule
+endmodule 
