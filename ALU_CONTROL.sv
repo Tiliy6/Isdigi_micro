@@ -9,7 +9,7 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 	
 	case(ALUOp)
 	
-		3'b000: 
+		3'b000: //Intsrucciones tipo R
 		begin
 		case(instruction_bits[2:0])
 			3'b000: if(instruction_bits[3] == 0)
@@ -95,5 +95,6 @@ endmodule
 
 
 	
+
 
 
