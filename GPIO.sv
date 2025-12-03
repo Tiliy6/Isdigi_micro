@@ -1,4 +1,4 @@
-module GP10 (
+module GPIO (
   // Lado bus
   input  logic        clk,
   input  logic        reset,      // activo bajo
