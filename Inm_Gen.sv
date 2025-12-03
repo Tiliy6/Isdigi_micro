@@ -1,4 +1,4 @@
-mmodule Inm_Gen(
+module Inm_Gen(
     input  logic [31:0] inst, 
     output logic [31:0] inm
 );
@@ -51,5 +51,6 @@ mmodule Inm_Gen(
     end
 
 endmodule
+
 
 
