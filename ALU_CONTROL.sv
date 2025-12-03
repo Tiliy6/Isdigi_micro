@@ -31,22 +31,22 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 	
 		endcase
 		end
-		
-	
-		3'b010: // Instrucciones tipo L y S
-		begin
-		case(instruction_bits[2:0])
-			3'b010: ALU_control = 4'b0000; //LW y SW
-			default: ALU_control = 4'b0000;
-		endcase
-		end
-			
+
 		
 		3'b001: //Intsrucciones tipo B
 		begin
 		case(instruction_bits[2:0])
 			3'b000: ALU_control = 4'b0001; //BEQ
 			3'b001: ALU_control = 4'b0001; //BNE
+			default: ALU_control = 4'b0000;
+		endcase
+		end
+
+		
+		3'b010: // Instrucciones tipo L y S
+		begin
+		case(instruction_bits[2:0])
+			3'b010: ALU_control = 4'b0000; //LW y SW
 			default: ALU_control = 4'b0000;
 		endcase
 		end
@@ -95,4 +95,5 @@ endmodule
 
 
 	
+
 
