@@ -69,12 +69,17 @@ endclass
 	logic [31:0] [31:0] registro;
 	instruccionRandom instr;
 	
+	logic [31:0] instr_sig;
+	logic [31:0] PC_sig;
+	logic [31:0] alu_out_ext_sig;
+	logic MemtoReg_sig_sig;
+	
 	
 	TOP_CORE duv (
 	.instr(instr_sig) ,	// input [31:0] instr_sig
 	.datareg_wr(datareg_wr_sig) ,	// input [31:0] datareg_wr_sig
-	.CLOCK(CLOCK_sig) ,	// input  CLOCK_sig
-	.RST_n(RST_n_sig) ,	// input  RST_n_sig
+	.CLOCK(CLOCK) ,	// input  CLOCK_sig
+	.RST_n(RST_n) ,	// input  RST_n_sig
 	.PC(PC_sig) ,	// output [31:0] PC_sig
 	.ena_wr(ena_wr_sig) ,	// output  ena_wr_sig
 	.ena_rd(ena_rd_sig) ,	// output  ena_rd_sig
@@ -85,7 +90,7 @@ endclass
 
 	
 	//COVERGROUPS
-	covergroup R_type;    
+	covergroup R_type();    
 	coverpoint instr.rd;
 	coverpoint instr.rs1;
 	coverpoint instr.rs2;
@@ -153,10 +158,12 @@ endclass
 	//(LUI, AUIPC) U
 	
 	task automatic R_instructions;
-		reg [31:0] valor_rs1 = registro[instr.rs1];
-		reg [31:0] valor_rs2 = registro[instr.rs2];
+		reg [31:0] valor_rs1;
+		reg [31:0] valor_rs2;
 		reg [31:0] resultado_esperado;
-		R_type R_cov = new();
+		R_type R_cov;
+		instr = new();
+		R_cov = new();
 		while (R_cov.get_coverage()<80)
 			begin
 				//desactivamos todas
@@ -173,6 +180,10 @@ endclass
 				instr = new();
 				assert (instr.randomize()) else $fatal("randomization failed");
 				instr.partes_instruccion();
+				instr_sig = instr.instruccion;
+				
+				valor_rs1 = registro[instr.rs1];
+				valor_rs2 = registro[instr.rs2];
 				
 				case(instr.funct3)
 					3'b000: if(instr.instruccion [31:25] == 7'b0000000)
