@@ -22,5 +22,4 @@ always_comb
 always_comb
 	readData2 = registro[readReg2];
 
-	
 endmodule
