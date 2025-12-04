@@ -8,7 +8,7 @@ logic MemtoReg_mux, ena_wr_sig, ena_rd_sig;
 
 ROM #(.ANCHO(32), .LARGO(1024), .INIT_FILE("")) ROM_inst
 (
-	.addr(PC_addr[9:0]) ,
+	.addr(PC_addr[9:0]) , //solo 10 bits porque es lo que dicta el parametro LARGO de nuestra ROM
 	.dout(instr_rom) 	// output [ANCHO-1:0] dout_sig
 );
 
@@ -31,7 +31,7 @@ RAM RAM_inst
 	.CLK(CLOCK) ,	// input  clk_sig
 	.write_enable(ena_wr_sig) ,	// input  write_enable_sig
 	.read_enable(ena_rd_sig) ,	// input  read_enable_sig
-	.addr(alu_result[9:0]) ,
+	.addr(alu_result[9:0]) , //solo 10 bits porque es lo que dicta el parametro LARGO de nuestra ROM
 	.din(dataram_wr_sig) ,	// input [ANCHO-1:0] din_sig
 	.dout(dout_ram) 	// output [ANCHO-1:0] dout_sig
 );
