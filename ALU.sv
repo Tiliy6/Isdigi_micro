@@ -30,13 +30,23 @@ module ALU (
             // LESS THAN (signed)
             4'b1001: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT
 				
+				//BNE
+				4'b1010: ALU_result = A - B;
+	
+								
+				
 
             default: ALU_result = 32'd0;
 
         endcase
     end
 
-    assign zero = (ALU_result == 32'd0);
+    assign zero =
+    (ALU_control == 4'b0001) ? (ALU_result == 0) :      // BEQ  → igual
+    (ALU_control == 4'b1010) ? (ALU_result != 0) :      // BNE  → distinto
+    (ALU_control == 4'b1001) ? (ALU_result == 1) :      // BLT  → SLT = 1
+    (ALU_control == 4'b1000) ? (ALU_result == 1) :      // BLTU → SLTU = 1
+    1'b0;                                               // resto (no branch)
 
 endmodule
 
