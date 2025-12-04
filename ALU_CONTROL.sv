@@ -9,40 +9,31 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 	
 	case(ALUOp)
 	
-		3'b000: //Intsrucciones tipo R
+		3'b000: 
 		begin
 		case(instruction_bits[2:0])
 			3'b000: if(instruction_bits[3] == 0)
 							ALU_control = 4'b0000; //ADD
 						else
 							ALU_control = 4'b0001; //SUB
+		
 			3'b001: ALU_control = 4'b0101; //SLL
 			3'b010: ALU_control = 4'b1001; //SLT
 			3'b011: ALU_control = 4'b1000; //SLTU
 			3'b100: ALU_control = 4'b0100; //XOR
-			3'b101: if(instruction_bits[3] == 0)
-							ALU_control = 4'b0110; //SRL
-					else
+			3'b101: ALU_control = 4'b0110; //SRL
+			3'b110: if(instruction_bits[3] == 0)
+							ALU_control = 4'b0011; //OR
+						else
 							ALU_control = 4'b0111; //SRA
-			3'b110:	ALU_control = 4'b0011; //OR
 			3'b111: ALU_control = 4'b0010; //AND
 	
 			default: ALU_control = 4'b0000;
 	
 		endcase
 		end
-
 		
-		3'b001: //Intsrucciones tipo B
-		begin
-		case(instruction_bits[2:0])
-			3'b000: ALU_control = 4'b0001; //BEQ
-			3'b001: ALU_control = 4'b0001; //BNE
-			default: ALU_control = 4'b0000;
-		endcase
-		end
-
-		
+	
 		3'b010: // Instrucciones tipo L y S
 		begin
 		case(instruction_bits[2:0])
@@ -50,6 +41,22 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 			default: ALU_control = 4'b0000;
 		endcase
 		end
+			
+		
+		3'b001: // Instrucciones tipo B (branches)
+		begin
+		
+			case(instruction_bits[2:0])   // funct3
+			  3'b000: ALU_control = 4'b0001; // BEQ  → SUB
+			  3'b001: ALU_control = 4'b1010; // BNE  → SUB (cambiado)
+			  3'b100: ALU_control = 4'b1001; // BLT  → SLT
+			  3'b110: ALU_control = 4'b1000; // BLTU → SLTU
+			  3'b101: ALU_control = 4'b1001; // BGE  → SLT
+			  3'b111: ALU_control = 4'b1000; // BGEU → SLTU
+			  default: ALU_control = 4'b0000;
+			endcase
+		end
+
 	
 	
 		3'b011: //instrucciones tipo I
@@ -60,7 +67,10 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 			3'b010: ALU_control = 4'b1001; //SLTi
 			3'b011: ALU_control = 4'b1000; //SLTiU
 			3'b100: ALU_control = 4'b0100; //XORi
-			3'b101: ALU_control = 4'b0110; //SRLi
+			3'b101: if(instruction_bits[3] == 0)
+							ALU_control = 4'b0110; //SRLi
+						else
+							ALU_control = 4'b0111; //SRAi
 			3'b110: ALU_control = 4'b0011; //ORi
 			3'b111: ALU_control = 4'b0010; //ANDi
 			default:ALU_control = 4'b0000;
@@ -95,6 +105,3 @@ endmodule
 
 
 	
-
-
-
