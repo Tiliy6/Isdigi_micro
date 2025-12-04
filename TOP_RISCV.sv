@@ -28,7 +28,7 @@ TOP_CORE TOP_CORE_inst
 
 RAM RAM_inst
 (
-	.clk(CLOCK) ,	// input  clk_sig
+	.CLK(CLOCK) ,	// input  clk_sig
 	.write_enable(ena_wr_sig) ,	// input  write_enable_sig
 	.read_enable(ena_rd_sig) ,	// input  read_enable_sig
 	.addr(alu_result) ,
