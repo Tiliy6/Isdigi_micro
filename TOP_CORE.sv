@@ -25,27 +25,27 @@ always_ff @(posedge CLOCK)
 		
 CONTROL CONTROL_inst
 (
-	.instruction(instr) ,	// input [31:0] instruction_sig
-	.Branch(Branch_sig) ,	// output  Branch_sig
-	.MemRead(MemRead_sig) ,	// output  MemRead_sig
-	.MemtoReg(MemtoReg_sig) ,	// output  MemtoReg_sig
-	.ALUOp(ALUOp_sig) ,	// output [1:0] ALUOp_sig
-	.MemWrite(MemWrite_sig) ,	// output  MemWrite_sig
-	.ALUSrc(ALUSrc_sig) ,	// output  ALUSrc_sig
-	.RegWrite(RegWrite_sig) , 	// output  RegWrite_sig
+	.instruction(instr),	// input [31:0] instruction_sig
+	.Branch(Branch_sig),	// output  Branch_sig
+	.MemRead(MemRead_sig),	// output  MemRead_sig
+	.MemtoReg(MemtoReg_sig),	// output  MemtoReg_sig
+	.ALUOp(ALUOp_sig),	// output [1:0] ALUOp_sig
+	.MemWrite(MemWrite_sig),	// output  MemWrite_sig
+	.ALUSrc(ALUSrc_sig),	// output  ALUSrc_sig
+	.RegWrite(RegWrite_sig), 	// output  RegWrite_sig
 	.AuipcLui(AuipcLui_sig)
 );
 		
 banco_registros banco_registros_inst
 (
-	.CLK(CLOCK) ,	// input  CLK_sig
-	.RST_n(RST_n) ,	// input  RST_n_sig
-	.readReg1(instr[19:15]) ,	// input [4:0] readReg1_sig
-	.readReg2(instr[24:20]) ,	// input [4:0] readReg2_sig
-	.writeReg(instr[11:7]) ,	// input [4:0] writeReg_sig
-	.writeData(datareg_wr) ,	// salida mux MemtoReg						
-	.readData1(regis_A) ,	// output [31:0] readData1_sig
-	.readData2(regis_B) ,	// output [31:0] readData2_sig
+	.CLK(CLOCK),	// input  CLK_sig
+	.RST_n(RST_n),	// input  RST_n_sig
+	.readReg1(instr[19:15]),	// input [4:0] readReg1_sig
+	.readReg2(instr[24:20]),	// input [4:0] readReg2_sig
+	.writeReg(instr[11:7]),	// input [4:0] writeReg_sig
+	.writeData(datareg_wr),	// salida mux MemtoReg						
+	.readData1(regis_A),	// output [31:0] readData1_sig
+	.readData2(regis_B),	// output [31:0] readData2_sig
 	.RegWrite(RegWrite_sig) 	// input  RegWrite_sig
 );
 
@@ -61,10 +61,10 @@ banco_registros banco_registros_inst
 		
 ALU ALU_inst
 (
-	.A(valor_A) ,	// mux 3 a 1 
-	.B(valor_B) ,	// mux indica si ReadData2 o immGen, seleccion=ALUSrc
-	.ALU_control(ALU_operation) ,	// controlado por modulo alu control
-	.ALU_result(alu_out_ext) ,	// decision del salto
+	.A(valor_A),	// mux 3 a 1 
+	.B(valor_B),	// mux indica si ReadData2 o immGen, seleccion=ALUSrc
+	.ALU_control(ALU_operation),	// controlado por modulo alu control
+	.ALU_result(alu_out_ext),	// decision del salto
 	.zero(zero_sig) 	// output  zero_sig
 );
 
@@ -76,8 +76,8 @@ Inm_Gen Inm_Gen_inst
 
 ALU_CONTROL ALU_CONTROL_inst
 (
-	.ALUOp(ALUOp_sig) ,
-	.instruction_bits(instruction_bits_sig) ,
+	.ALUOp(ALUOp_sig),
+	.instruction_bits(instruction_bits_sig),
 	.ALU_control(ALU_operation)
 );
 
