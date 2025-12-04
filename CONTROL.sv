@@ -22,10 +22,10 @@ module CONTROL(
         MemWrite  = 0;
         ALUSrc    = 0;
         RegWrite  = 0;
-		AuipcLui  = 2'b11;
+		  AuipcLui  = 2'b11;
         case (opcode)
 
-            // R-format
+            // R-format (incluye SLT y SLTU)
             7'b01100: begin
                 ALUOp     = 3'b000;
                 RegWrite  = 1;
@@ -54,27 +54,28 @@ module CONTROL(
                 ALUOp     = 3'b010;
             end
 
-            // BEQ
+            // TIPO B (BEQ, BGE, BGEU, BNE, BLT, BLTU)
             7'b11000: begin
                 Branch    = 1;
                 ALUOp     = 3'b001;
             end
 				
-			// LUI
-			7'b01101: begin
-				 RegWrite  = 1;
-				 ALUOp     = 3'b100;
-				 ALUSrc    = 1;
-				 AuipcLui  = 2'b01;//Esto equivale a que el MUX saque un 0	 
-			end
+				// LUI
+				7'b01101: begin
+					 RegWrite  = 1;
+					 ALUOp     = 3'b100;
+					 ALUSrc    = 1;
+					 AuipcLui  = 2'b01;//Esto equivale a que el MUX saque un 0
+					 
+				end
 
-			// AUIPC
-			7'b00101: begin
-				 RegWrite  = 1;
-				 ALUOp     = 3'b100; 
-				 ALUSrc    = 1;
-				 AuipcLui  = 2'b00;//Esto equivale a que el MUX saque el PC
-			end
+				// AUIPC
+				7'b00101: begin
+					 RegWrite  = 1;
+					 ALUOp     = 3'b100; 
+					 ALUSrc    = 1;
+					 AuipcLui  = 2'b00;//Esto equivale a que el MUX saque el PC
+				end
 			default: begin
 				Branch    = 0;
 				MemRead   = 0;
@@ -85,6 +86,7 @@ module CONTROL(
 				RegWrite  = 0;
 				AuipcLui  = 2'b11;
 			end
+
 
         endcase
     end
