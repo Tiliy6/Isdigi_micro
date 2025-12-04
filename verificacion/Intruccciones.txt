@@ -1,0 +1,15 @@
+#INSTRUCCIONES A COMPROBAR
+#(ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND) R
+#(ADDi, SLTi, SLTiU, XORi, ORi, ANDi, SLLi, SRLi, SRAi) I
+#(LW) carga
+#(SW) S
+#(BEQ, BNE) B
+#(LUI, AUIPC) U
+
+lui x9, 200
+auipc x9, 4
+
+addi x8, x0, 265
+sw x8, 0(x9)
+lw x10, 0(x9)
+
