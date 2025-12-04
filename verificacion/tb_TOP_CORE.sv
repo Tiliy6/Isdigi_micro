@@ -149,7 +149,7 @@ endclass
 	//(ADDi, SLTi, SLTiU, XORi, ORi, ANDi, SLLi, SRLi, SRAi) I
 	//(LW) carga
 	//(SW) S
-	//(BEQ, BNE) B
+	//(BEQ, BNE, BGE) B
 	//(LUI, AUIPC) U
 	
 	task automatic R_instructions;
