@@ -22,7 +22,7 @@ module tb_ALU_CONTROL;
   // ============================================================
   // FUNCIÓN QUE DEVUELVE EL NOMBRE DE LA OPERACIÓN COMO STRING
   // ============================================================
-  function automatic string op_name(input logic [2:0] op,
+  function string op_name(input logic [2:0] op,
                                     input logic [3:0] bits);
 
     logic funct7 = bits[3];
