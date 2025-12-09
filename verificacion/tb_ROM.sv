@@ -21,12 +21,12 @@ ROM duv(
 	 end
 
 	
-initial begin //Valores esperados de la ROM a falta del fichero
-	duv.mem[0] = 32'h0ff00013;
-	duv.mem[1] = 32'h0ff08093;
-	duv.mem[2] = 32'h0ff10113;
-	duv.mem[3] = 32'h0ff18193;
-end
+//Valores de la ROM de fibonacci.txt
+	localparam logic [31:0] pos0 =  32'h0001a383;
+	localparam logic [31:0] pos1 = 32'h00818413;
+	localparam logic [31:0] pos2 = 32'h00418493;
+	localparam logic [31:0] pos3 = 32'h00100513;
+
 
 initial
 	begin
@@ -35,22 +35,22 @@ initial
 
  //Comprobacion de los valores
 	address = 8'd0;
-	#3 assert(instruction == 32'h0ff00013)
+		#3 assert(instruction == pos0)
 		else $error("Error en la lectura de la ROM");
 		repeat (5) @(negedge CLK)
 		
 	address = 8'd1;
-	#3 assert(instruction == 32'h0ff08093)
+		#3 assert(instruction == pos1)
 		else $error("Error en la lectura de la ROM");
 		repeat (5) @(negedge CLK)
 		
 	address = 8'd2;
-	#3 assert(instruction == 32'h0ff10113)
+		#3 assert(instruction == pos2)
 		else $error("Error en la lectura de la ROM");
 		repeat (5) @(negedge CLK)
 		
 	address = 8'd3;
-	#3 assert(instruction == 32'h0ff18193)
+		#3 assert(instruction == pos3)
 		else $error("Error en la lectura de la ROM");
 		repeat (5) @(negedge CLK)
 	$display("Simulacion finalizada");
@@ -58,3 +58,4 @@ initial
 	end
 	
 endmodule	
+
