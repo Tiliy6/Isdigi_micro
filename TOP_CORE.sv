@@ -81,7 +81,7 @@ ALU_CONTROL ALU_CONTROL_inst
 	.ALU_control(ALU_operation)
 );
 
-assign PCSrc = zero_sig & Branch_sig;
+assign PCSrc = zero_sig & Branch_sig & Jal; // Esta puerta AND es de 3 entradas zero_sig,  Branch_sig y Jal, si el jal esta activado activa el mux para que pase el pc+4
 assign PC_siguiente = (PCSrc) ? (PC + inm_out) : (PC + 4);
 assign valor_B = (ALUSrc_sig) ? inm_out : regis_B; //mux que selecciona entrada B alu
 assign ena_wr = MemWrite_sig;
