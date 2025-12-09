@@ -3,13 +3,19 @@
 #(ADDi, SLTi, SLTiU, XORi, ORi, ANDi, SLLi, SRLi, SRAi) I
 #(LW) carga
 #(SW) S
-#(BEQ, BNE) B
+#(BEQ, BNE, BGE) B
 #(LUI, AUIPC) U
 
-lui x9, 200
-auipc x9, 4
+auipc x3, 65536
+sw x3 ,0(x3)
 
-addi x8, x0, 265
-sw x8, 0(x9)
-lw x10, 0(x9)
+addi x8, x0, 10
+lui x9, 10
+lw x10, 0(x3)
 
+
+
+
+
+.data
+.word 10
