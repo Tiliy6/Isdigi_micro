@@ -1,63 +1,77 @@
-module Inm_Gen(
-    input  logic [31:0] inst, 
-    output logic [31:0] inm
+// Generador de inmediatos hasta la entrega de la fase 2
+// Soporta:
+//   - I-type: ADDi, SLTi, SLTiU, XORi, ORi, ANDi, SLLi, SRLi, SRAi, LW
+//   - S-type: SW
+//   - B-type: BEQ, BNE, BGE
+//   - U-type: LUI, AUIPC
+//   - R-type: sin inmediato (imm = 0)
+
+module Inm_Gen (
+    input  logic [31:0] instr,   // instrucción completa
+    output logic [31:0] imm      // inmediato sign-extendido
 );
 
-    // Extraemos opcode directamente de la instrucción
-    logic [6:0] op_code;
-    assign op_code = inst[6:0];
+    // Opcode de la instrucción
+    logic [6:0] opcode;
+    assign opcode = instr[6:0];
 
-    // Codificación de formatos RISC-V
-    localparam I_Format = 7'b0010011;
-    localparam S_Format = 7'b0100011;
-    localparam B_Format = 7'b1100011;
-    localparam U_Format = 7'b0110111;
-    localparam U_auipc  = 7'b0010111; 
-    localparam J_Format = 7'b1101111;
+    // Opcodes RV32I que usamos en el proyecto
+    localparam logic [6:0]
+        OPCODE_LOAD   = 7'b0000011, // LW
+        OPCODE_OPIMM  = 7'b0010011, // ADDi, ANDi, ...
+        OPCODE_STORE  = 7'b0100011, // SW
+        OPCODE_BRANCH = 7'b1100011, // BEQ, BNE, BGE
+        OPCODE_LUI    = 7'b0110111, // LUI
+        OPCODE_AUIPC  = 7'b0010111; // AUIPC
 
     always_comb begin
-        case (op_code)
+        unique case (opcode)
 
-            // -------- I-FORMAT --------
-            I_Format: begin
-                inm = {{21{inst[31]}}, inst[30:20]};
+            // ======================= I-TYPE ==========================
+            // LW (LOAD) y ALU inmediatas (ADDi, ANDi, SLTi, ...)
+            OPCODE_LOAD,
+            OPCODE_OPIMM: begin
+                // imm[31:0] = sign-extend(instr[31:20])
+                imm = {{20{instr[31]}}, instr[31:20]};
             end
 
-            // -------- S-FORMAT --------
-            S_Format: begin
-                inm = {{21{inst[31]}}, inst[30:25], inst[11:7]};
+            // ======================= S-TYPE ==========================
+            // SW
+            OPCODE_STORE: begin
+                // imm[31:0] = sign-extend(instr[31:25] instr[11:7])
+                imm = {{20{instr[31]}},
+                        instr[31:25],
+                        instr[11:7]};
             end
 
-            // -------- B-FORMAT --------
-            B_Format: begin
-                inm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
+            // ======================= B-TYPE ==========================
+            // BEQ, BNE, BGE (todas usan el mismo formato B)
+            OPCODE_BRANCH: begin
+                // imm[31:0] = sign-extend( instr[31] instr[7]
+                //                           instr[30:25] instr[11:8] 0 )
+                imm = {{19{instr[31]}},
+                        instr[31],
+                        instr[7],
+                        instr[30:25],
+                        instr[11:8],
+                        1'b0};
             end
 
-            // -------- U-FORMAT --------
-            U_Format: begin
-                inm = {inst[31:12], 12'b0};
+            // ======================= U-TYPE ==========================
+            // LUI y AUIPC (mismo formato)
+            OPCODE_LUI,
+            OPCODE_AUIPC: begin
+                // imm[31:0] = instr[31:12] << 12
+                imm = {instr[31:12], 12'b0};
             end
 
-            // --------  U_auipc -------- 
-           U_auipc: begin
-                inm = {inst[31:12], 12'b0};
-            end
-
-            // -------- J-FORMAT --------
-            J_Format: begin
-                inm = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
-            end
-
-            // -------- DEFAULT = I-FORMAT --------
+            // ======================= R-TYPE / otros ==================
+            // ADD, SUB, SLT, ... no tienen inmediato
             default: begin
-                inm = {{21{inst[31]}}, inst[30:20]};
+                imm = 32'd0;
             end
 
         endcase
     end
 
 endmodule
-
-
-
-
