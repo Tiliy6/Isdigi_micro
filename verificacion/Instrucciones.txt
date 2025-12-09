@@ -6,12 +6,33 @@
 #(BEQ, BNE, BGE) B
 #(LUI, AUIPC) U
 
+#(, SLT, SLTU, XOR, , SRA, OR, AND) R
+#(, SLTi, SLTiU, XORi, ORi, ANDi,, SRAi) I
+#(BEQ, BNE, BGE) B
+
 auipc x3, 65536
-sw x3 ,0(x3)
 
 addi x8, x0, 10
 lui x9, 10
-lw x10, 0(x3)
+lw x7, 0(x3)
+
+add x8, x8, x9
+sub x8, x8, x9
+addi x8, x8, 25
+addi, x8, x8, -25
+
+slli x8, x8, 4
+srli x8, x8, 4
+addi x10, x0, 8
+sll x8, x8, x10
+srl x8, x8, x10
+
+
+
+
+
+
+
 
 
 
