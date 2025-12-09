@@ -6,9 +6,10 @@
 #(BEQ, BNE, BGE) B
 #(LUI, AUIPC) U
 
+#Las que faltan por implementar
 #(, SLT, SLTU, XOR, , SRA, OR, AND) R
 #(, SLTi, SLTiU, XORi, ORi, ANDi,, SRAi) I
-#(BEQ, BNE, BGE) B
+#(BEQ, BGE) B
 
 auipc x3, 65536
 
@@ -28,11 +29,15 @@ sll x8, x8, x10
 srl x8, x8, x10
 
 
+srli x11, x9, 3
+bne x11, x8, MAL
 
 
 
 
 
+
+MAL:
 
 
 
