@@ -26,7 +26,7 @@ TOP_CORE TOP_CORE_inst
 	.dataram_wr(dataram_wr_sig) 	// output [31:0] dataram_wr_sig
 );
 
-RAM RAM_inst
+RAM #(.INIT_FILE("RAM_Fibonacci.txt")) RAM_inst
 (
 	.CLK(CLOCK) ,	// input  clk_sig
 	.write_enable(ena_wr_sig) ,	// input  write_enable_sig
