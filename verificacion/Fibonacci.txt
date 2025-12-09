@@ -7,6 +7,7 @@
     addi x12, x0, 0
     addi x13, x0, 2
     sw x10, 0(x8)
+	sw x11, 0(x9)
 INICIO:
 	lw x10, 0(x9)
     lw x11, 0(x8)
@@ -20,4 +21,5 @@ INICIO:
     
 .data 
 	.word 10
+
 
