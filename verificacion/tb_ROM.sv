@@ -22,7 +22,7 @@ ROM duv(
 
 	
 //Valores de la ROM de fibonacci.txt
-	localparam logic [31:0] pos0 = 32'h00000193;
+	localparam logic [31:0] pos0 = 32'h10000197;
 	localparam logic [31:0] pos1 = 32'h00a00393;
 	localparam logic [31:0] pos2 = 32'h00818413;
 	localparam logic [31:0] pos3 = 32'h00418493;
@@ -58,5 +58,6 @@ initial
 	end
 	
 endmodule	
+
 
 
