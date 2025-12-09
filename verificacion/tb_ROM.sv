@@ -1,4 +1,4 @@
-`timescale 1ns/100ps
+`timescale 1ns/1ps
 
 module tb_ROM ();
 localparam T = 20;
@@ -58,6 +58,7 @@ initial
 	end
 	
 endmodule	
+
 
 
 
