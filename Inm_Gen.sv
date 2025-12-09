@@ -12,6 +12,7 @@ module Inm_Gen(
     localparam S_Format = 7'b0100011;
     localparam B_Format = 7'b1100011;
     localparam U_Format = 7'b0110111;
+    localparam U_auipc  = 7'b0010111; 
     localparam J_Format = 7'b1101111;
 
     always_comb begin
@@ -37,6 +38,11 @@ module Inm_Gen(
                 inm = {inst[31:12], 12'b0};
             end
 
+            // --------  U_auipc -------- 
+           U_auipc: begin
+                inm = {inst[31:12], 12'b0};
+            end
+
             // -------- J-FORMAT --------
             J_Format: begin
                 inm = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
@@ -51,6 +57,7 @@ module Inm_Gen(
     end
 
 endmodule
+
 
 
 
