@@ -5,14 +5,14 @@ module tb_TOP_CORE();
 	logic [31:0] instr, datareg_wr, PC, alu_out_ext, dataram_wr;
 	logic CLOCK, RST_n, ena_wr, ena_rd, MemtoReg_sig;
 	
-	logic [31:0] registro [0:31]; 
+	logic [31:0] [31:0] registro; //x0=registro[0],x1=registro[1], ect
 	logic [31:0] rs1, rs2; // Contenido de 32 bits
 	logic [2:0] func3;
 	logic [31:0] resultado_esperado;
 
 	TOP_CORE duv (
 		.instr(instr) ,
-		.datareg_wr(datareg_wr) ,
+		.datareg_wr(alu_out_ext) ,
 		.CLOCK(CLOCK) ,
 		.RST_n(RST_n) ,
 		.PC(PC) ,
@@ -169,11 +169,13 @@ module tb_TOP_CORE();
 	task init_registros;
 		begin
 			for (int i = 0; i < 32; i++) begin
-				registro[i] = $random;
+				duv.banco_registros_inst.registro[i] = $random;
 			end
-			registro[0] = 32'h0; // R0 siempre es 0
+			duv.banco_registros_inst.registro[0] = 32'h0; // R0 siempre es 0
 		end
 	endtask
+	
+	assign registro = duv.banco_registros_inst.registro;
 	
 task R_instructions;
 		// 1. DECLARACIÓN DE VARIABLES LOCALES (SIEMPRE ARRIBA DEL TODO)
@@ -215,14 +217,14 @@ task R_instructions;
 				 default: resultado_esperado = '0;
 			endcase
 			
-			@(posedge CLOCK)
+			@(negedge CLOCK)
 			assert (alu_out_ext == resultado_esperado) else $error("operacion tipo R mal realizada");
-
-			// 3. WRITE BACK (Usamos la variable declarada arriba)
-			rd_index = instr[11:7]; // Aquí solo asignamos valor
-			if (rd_index != 5'b00000) begin
-				registro[rd_index] = resultado_esperado;
-			end
+//
+//			// 3. WRITE BACK (Usamos la variable declarada arriba)
+//			rd_index = instr[11:7]; // Aquí solo asignamos valor
+//			if (rd_index != 5'b00000) begin
+//				registro[rd_index] = resultado_esperado;
+//			end
 
 			veamosR.sample();
 		end
@@ -244,14 +246,15 @@ task R_instructions;
 	initial
 	begin
 		CLOCK = 0;
-		// Inicializamos memoria
-		init_registros();
-		
+		// Inicializamos memoria		
 		reset();
+		
 		@(negedge CLOCK);
 		while (veamosR.cruceR.get_coverage() < 30)
+			
 			begin
-				@(negedge CLOCK)
+				init_registros();
+				@(posedge CLOCK)
 				R_instructions;
 			end
 		$display("Test finished");
