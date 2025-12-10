@@ -45,6 +45,10 @@ andi x17, x16, 10
 addi x18, x0, 8
 beq x17, x18, BIEN2
 beq x0, x0, MAL
+
+addi x1, x0, 5
+sw x1, 0(x3)
+
 BIEN2:
 #tercera parte
 addi x13, x0, 2
