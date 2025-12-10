@@ -30,6 +30,8 @@ srai x12, x12, 4
 bne x12, x8, MAL
 bne x11, x8, MAL
 sw x11,4(x3)
+
+
 #segunda parte
 addi x13, x0, 12
 addi x14, x0, 25
@@ -38,6 +40,8 @@ and x16, x15,x13
 or x17, x16, x15
 beq x15, x15, BIEN
 beq x0, x0, MAL
+
+
 BIEN:
 xori x15, x13, 8
 ori x16, x15, 8
@@ -46,8 +50,6 @@ addi x18, x0, 8
 beq x17, x18, BIEN2
 beq x0, x0, MAL
 
-addi x1, x0, 5
-sw x1, 0(x3)
 
 BIEN2:
 #tercera parte
@@ -60,6 +62,7 @@ sltu x15, x14, x13
 sltiu x16, x14, 12
 add x18, x15, x16
 bge x18, x17, MAL 
+nop
 sw x17, 8(x3)
 MAL:
 
