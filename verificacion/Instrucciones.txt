@@ -62,7 +62,6 @@ sltu x15, x14, x13
 sltiu x16, x14, 12
 add x18, x15, x16
 bge x18, x17, MAL 
-nop
 sw x17, 8(x3)
 MAL:
 
