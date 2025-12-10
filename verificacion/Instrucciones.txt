@@ -6,16 +6,12 @@
 #(BEQ, BNE, BGE) B
 #(LUI, AUIPC) U
 
-#Las que faltan por implementar
-#(, SLT, SLTU, XOR, , SRA, OR, AND) R
-#(, SLTi, SLTiU, XORi, ORi, ANDi,, SRAi) I
-#(BEQ, BGE) B
+
 
 auipc x3, 65536
 
 addi x8, x0, 10
 lui x9, 10
-lw x7, 0(x3)
 
 add x8, x8, x9
 sub x8, x8, x9
@@ -28,20 +24,41 @@ addi x10, x0, 8
 sll x8, x8, x10
 srl x8, x8, x10
 
-
-srli x11, x9, 3
+srli x11, x9, 12
+sra x12, x9, x10
+srai x12, x12, 4
+bne x12, x8, MAL
 bne x11, x8, MAL
-
-
-
-
-
-
+sw x11,4(x3)
+#segunda parte
+addi x13, x0, 12
+addi x14, x0, 25
+xor x15,x13, x14
+and x16, x15,x13
+or x17, x16, x15
+beq x15, x15, BIEN
+beq x0, x0, MAL
+BIEN:
+xori x15, x13, 8
+ori x16, x15, 8
+andi x17, x16, 10
+addi x18, x0, 8
+beq x17, x18, BIEN2
+beq x0, x0, MAL
+BIEN2:
+#tercera parte
+addi x13, x0, 2
+addi x14, x0, -16
+slt x15, x14, x13
+slti x16, x14, -15
+add x17, x15, x16
+sltu x15, x14, x13
+sltiu x16, x14, 12
+add x18, x15, x16
+bge x18, x17, MAL 
+sw x17, 8(x3)
 MAL:
 
 
 
 
-
-.data
-.word 10
