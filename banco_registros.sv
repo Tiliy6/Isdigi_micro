@@ -6,7 +6,7 @@ output logic [31:0] readData1, readData2;
 logic [31:0] [31:0] registro; //x0=registro[0],x1=registro[1], ect
 
 
-always_ff @(posedge CLK)
+always_ff @(posedge CLK or negedge RST_n)
 	begin
 		if (!RST_n)
 			registro <= 0;
