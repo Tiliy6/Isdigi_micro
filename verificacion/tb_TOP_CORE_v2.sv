@@ -33,7 +33,7 @@ module tb_TOP_CORE();
 			instr[31:25] == 7'b0100000 && instr[14:12] == 3'b101;
 		} 
 		
-		/* // Resto de constraints comentados como pediste
+		/* 
 		constraint I_format {
 			instr[6:0] == 7'b0010011;
 			instr[31:25] == 7'b0000000 && instr[14:12] == 3'b001 ||
@@ -253,8 +253,9 @@ task R_instructions;
 		while (veamosR.cruceR.get_coverage() < 30)
 			
 			begin
-				init_registros();
 				@(posedge CLOCK)
+				init_registros();
+				#2
 				R_instructions;
 			end
 		$display("Test finished");
