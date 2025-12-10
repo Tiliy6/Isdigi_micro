@@ -17,7 +17,7 @@ logic [1:0] AuipcLui_sig;
 logic [2:0] ALUOp_sig;
 logic [3:0] instruction_bits_sig, ALU_operation;
 
-always_ff @(posedge CLOCK)
+always_ff @(posedge CLOCK or negedge RST_n)
 	if (!RST_n)
 		PC <= '0;
 	else 
