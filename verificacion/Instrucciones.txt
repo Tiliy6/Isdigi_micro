@@ -10,7 +10,7 @@
 
 auipc x3, 65536
 
-addi x8, x0, 10
+lw x8, 0(x3)
 lui x9, 10
 
 add x8, x8, x9
@@ -65,3 +65,6 @@ bge x18, x17, MAL
 nop
 sw x17, 8(x3)
 MAL:
+
+.data
+.word 10
