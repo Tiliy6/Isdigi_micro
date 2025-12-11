@@ -25,13 +25,19 @@ module ALU (
             4'b0111: ALU_result = $signed(A) >>> B[4:0]; // SRA
 
             // LESS THAN (unsigned)
-            4'b1000: ALU_result = (A < B) ? 32'd1 : 32'd0;   // SLTU
+			4'b1000: ALU_result = (A < B) ? 32'd1 : 32'd0;   // SLTU  --> BLTU
 
             // LESS THAN (signed)
-            4'b1001: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT
+			4'b1001: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT --> BLT
 				
 				//BNE
 				4'b1010: ALU_result = A - B;
+
+				 // LESS THAN (unsigned)
+				4'b1011: ALU_result = (A < B) ? 32'd1 : 32'd0;   // SLTU  --> BGEU
+	
+	            // LESS THAN (signed)
+				4'b1100: ALU_result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0; // SLT --> BGE
 	
 								
 				
@@ -46,6 +52,8 @@ module ALU (
     (ALU_control == 4'b1010) ? (ALU_result != 0) :      // BNE  → distinto
     (ALU_control == 4'b1001) ? (ALU_result == 1) :      // BLT  → SLT = 1
     (ALU_control == 4'b1000) ? (ALU_result == 1) :      // BLTU → SLTU = 1
+	(ALU_control == 4'b1011) ? (ALU_result == 0) :      // BGE  → SLT = 0
+	(ALU_control == 4'b1100) ? (ALU_result == 0) :      // BGEU → SLTU = 0
     1'b0;                                               // resto (no branch)
 
 endmodule
