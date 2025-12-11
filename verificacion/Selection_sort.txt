@@ -12,6 +12,7 @@
 
 
 Loop:
+	addi x14, x16, 0
 	lw x12, 0(x16)
 
 Loop2:
