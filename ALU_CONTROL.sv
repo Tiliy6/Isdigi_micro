@@ -53,8 +53,8 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 			  3'b001: ALU_control = 4'b1010; // BNE  → SUB (cambiado)
 			  3'b100: ALU_control = 4'b1001; // BLT  → SLT
 			  3'b110: ALU_control = 4'b1000; // BLTU → SLTU
-			  3'b101: ALU_control = 4'b1001; // BGE  → SLT
-			  3'b111: ALU_control = 4'b1000; // BGEU → SLTU
+			  3'b101: ALU_control = 4'b1100; // BGE  → SLT
+			  3'b111: ALU_control = 4'b1011; // BGEU → SLTU
 			  default: ALU_control = 4'b0000;
 			endcase
 		end
@@ -107,3 +107,4 @@ endmodule
 
 
 	
+
