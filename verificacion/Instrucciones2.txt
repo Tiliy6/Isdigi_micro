@@ -1,0 +1,30 @@
+auipc x3, 65536
+addi x8, x0, 25
+addi x9, x0, 12
+addi x10, x0, -30
+addi x11, x0, -14
+
+
+jal x1, Producto
+sw x12, 0(x3)
+beq x0,x0, MAL
+
+Producto:
+blt x9, x10, MAL
+blt x8, x9, MAL
+blt x8, x10, MAL
+
+bltu x10, x8, MAL
+bltu x11, x9, MAL
+
+bgeu x8, x10, MAL
+bgeu x9, x11, MAL
+
+add x12, x8, x10
+
+bltu x12, x10, MAL
+
+jalr x0, 0(x1)
+
+MAL:
+sw x12, 4(x3)
