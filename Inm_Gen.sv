@@ -23,7 +23,8 @@ module Inm_Gen (
         OPCODE_BRANCH = 7'b1100011, // BEQ, BNE, BGE
         OPCODE_LUI    = 7'b0110111, // LUI
         OPCODE_AUIPC  = 7'b0010111; // AUIPC
-        OPCODE_JAL = 7'b1101111; 
+        OPCODE_JAL = 7'b1101111; //JAL
+        OPCODE_JALR = 7'b1100111; //JALR
 
     always_comb begin
         unique case (opcode)
@@ -73,6 +74,9 @@ module Inm_Gen (
                        instr[30:21],      // imm[10:1]
                        1'b0};             // imm[0] = 0
               end
+            OPCODE_JALR: begin
+                inm = {{20{inst[31]}}, inst[31:20]};
+              end
             // ======================= R-TYPE / otros ==================
             // ADD, SUB, SLT, ... no tienen inmediato
             default: begin
@@ -83,4 +87,5 @@ module Inm_Gen (
     end
 
 endmodule
+
 
