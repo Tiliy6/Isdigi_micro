@@ -1,21 +1,23 @@
-module TOP_CORE(instr, datareg_wr, CLOCK, RST_n, PC, ena_wr, ena_rd, alu_out_ext, MemtoReg_sig, dataram_wr);
+module TOP_CORE(instr, CLOCK, RST_n, dataram_rd, PC, ena_wr, ena_rd, alu_out_ext, dataram_wr);
 
 input [31:0] instr;
-input [31:0] datareg_wr; //salida mux memtoreg
 input RST_n, CLOCK;
+input logic [31:0] dataram_rd; //salida de la ram
 
 output logic [31:0] PC;
 output logic ena_wr, ena_rd; //entrada habilita ram lectura/escritura
-output logic MemtoReg_sig; //habilita mux de ram
 output logic [31:0] alu_out_ext; //entrada ram
 output logic [31:0] dataram_wr;
 
 logic [31:0] PC_siguiente;
 logic [31:0] regis_A, regis_B, valor_A, valor_B, inm_out;
-logic ALUSrc_sig, Branch_sig, PCSrc, zero_sig, RegWrite_sig, MemRead_sig, MemWrite_sig, Jal_sig;
+logic ALUSrc_sig, Branch_sig, PCSrc, zero_sig, RegWrite_sig, MemRead_sig, MemWrite_sig;
 logic [1:0] AuipcLui_sig;
 logic [2:0] ALUOp_sig;
 logic [3:0] instruction_bits_sig, ALU_operation;
+logic [1:0] MemtoReg_sig; //habilita mux de ram
+logic [31:0] datareg_wr; //salida mux memtoreg
+
 
 always_ff @(posedge CLOCK or negedge RST_n)
 	if (!RST_n)
@@ -29,12 +31,11 @@ CONTROL CONTROL_inst
 	.Branch(Branch_sig),	// output  Branch_sig
 	.MemRead(MemRead_sig),	// output  MemRead_sig
 	.MemtoReg(MemtoReg_sig),	// output  MemtoReg_sig
-	.ALUOp(ALUOp_sig),	// output [1:0] ALUOp_sig
+	.ALUOp(ALUOp_sig),	// output [2:0] ALUOp_sig
 	.MemWrite(MemWrite_sig),	// output  MemWrite_sig
 	.ALUSrc(ALUSrc_sig),	// output  ALUSrc_sig
 	.RegWrite(RegWrite_sig), 	// output  RegWrite_sig
-	.AuipcLui(AuipcLui_sig),
-	.Jal(Jal_sig)
+	.AuipcLui(AuipcLui_sig)
 );
 		
 banco_registros banco_registros_inst
@@ -82,7 +83,7 @@ ALU_CONTROL ALU_CONTROL_inst
 	.ALU_control(ALU_operation)
 );
 
-assign PCSrc = (zero_sig & Branch_sig) || Jal_sig; // Esta puerta AND es de 3 entradas zero_sig,  Branch_sig y Jal, si el jal esta activado activa el mux para que pase el pc+4
+assign PCSrc = zero_sig & Branch_sig; // & Jal; // Esta puerta AND es de 3 entradas zero_sig,  Branch_sig y Jal, si el jal esta activado activa el mux para que pase el pc+4
 // La señal Jal y Jal R salen de Alu Control, hay que cambiar ese modulo para que genere esas señales. 
 assign PC_siguiente = (PCSrc) ? (PC + inm_out) : (PC + 4);
 assign valor_B = (ALUSrc_sig) ? inm_out : regis_B; //mux que selecciona entrada B alu
@@ -90,4 +91,5 @@ assign ena_wr = MemWrite_sig;
 assign ena_rd = MemRead_sig;
 assign instruction_bits_sig = {instr[30],instr[14:12]};
 assign dataram_wr = regis_B;
+assign datareg_wr = (MemtoReg_sig == 2'b01) ? dataram_rd : ((MemtoReg_sig == 2'b00) ? alu_out_ext : PC + 4);
 endmodule
