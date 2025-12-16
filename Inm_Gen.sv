@@ -1,11 +1,3 @@
-// Generador de inmediatos hasta la entrega de la fase 2
-// Soporta:
-//   - I-type: ADDi, SLTi, SLTiU, XORi, ORi, ANDi, SLLi, SRLi, SRAi, LW
-//   - S-type: SW
-//   - B-type: BEQ, BNE, BGE
-//   - U-type: LUI, AUIPC
-//   - R-type: sin inmediato (inm = 0)
-
 module Inm_Gen (
     input  logic [31:0] inst,   // instrucción completa
     output logic [31:0] inm      // inmediato sign-extendido
@@ -87,5 +79,3 @@ module Inm_Gen (
     end
 
 endmodule
-
-
