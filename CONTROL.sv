@@ -2,11 +2,13 @@ module CONTROL(
     input  logic [31:0] instruction,   // instrucción completa RISC-V
     output logic        Branch,
     output logic        MemRead,
-    output logic        MemtoReg,
+    output logic  [1:0] MemtoReg,
     output logic  [2:0] ALUOp,
     output logic        MemWrite,
     output logic        ALUSrc,
     output logic        RegWrite,
+	 output logic			Jal,
+	 output logic			Jalr,
 	 output logic  [1:0] AuipcLui
 );
 
@@ -17,12 +19,14 @@ module CONTROL(
     always_comb begin
         Branch    = 0;
         MemRead   = 0;
-        MemtoReg  = 0;
+        MemtoReg  = 2'b00;
         ALUOp     = 3'b000;
         MemWrite  = 0;
         ALUSrc    = 0;
         RegWrite  = 0;
 		  AuipcLui  = 2'b11;
+		  Jalr      = 0;
+		  Jal 		= 0;
         case (opcode)
 
             // R-format (incluye SLT y SLTU)
@@ -41,7 +45,7 @@ module CONTROL(
             // LW
             7'b00000: begin
                 MemRead   = 1;
-                MemtoReg  = 1;
+                MemtoReg  = 2'b01;
                 ALUSrc    = 1;
                 ALUOp     = 3'b010;
                 RegWrite  = 1;
@@ -76,15 +80,34 @@ module CONTROL(
 					 ALUSrc    = 1;
 					 AuipcLui  = 2'b00;//Esto equivale a que el MUX saque el PC
 				end
+				
+				//JAL
+				7'b11011: begin
+					 Jal = 1;
+					 RegWrite  = 1;
+					 MemtoReg  = 2'b10;
+				end
+				
+				//JALR
+				7'b11001: begin
+					 Jalr 	  = 1;
+					 ALUSrc    = 1;
+					 ALUOp     = 3'b000;
+					 RegWrite  = 1;
+					 MemtoReg  = 2'b10;
+				end
+				
 			default: begin
 				Branch    = 0;
 				MemRead   = 0;
-				MemtoReg  = 0;
+				MemtoReg  = 2'b00;
 				ALUOp     = 3'b000;
 				MemWrite  = 0;
 				ALUSrc    = 0;
 				RegWrite  = 0;
 				AuipcLui  = 2'b11;
+				Jal 		 = 0;
+				Jalr 		 = 0;
 			end
 
 
