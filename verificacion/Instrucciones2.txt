@@ -4,6 +4,9 @@ addi x9, x0, 12
 addi x10, x0, -30
 addi x11, x0, -14
 
+nop
+nop
+nop
 
 jal x1, Producto
 sw x12, 0(x3)
@@ -21,6 +24,9 @@ bgeu x8, x10, MAL
 bgeu x9, x11, MAL
 
 add x12, x8, x10
+nop
+nop
+nop
 
 bltu x12, x10, MAL
 
