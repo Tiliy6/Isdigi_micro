@@ -12,7 +12,7 @@ output logic [31:0] dataram_wr;
 
 logic [31:0] PC_siguiente;
 logic [31:0] regis_A, regis_B, valor_A, valor_B, inm_out;
-logic ALUSrc_sig, Branch_sig, PCSrc, zero_sig, RegWrite_sig, MemRead_sig, MemWrite_sig;
+logic ALUSrc_sig, Branch_sig, PCSrc, zero_sig, RegWrite_sig, MemRead_sig, MemWrite_sig, Jal_sig;
 logic [1:0] AuipcLui_sig;
 logic [2:0] ALUOp_sig;
 logic [3:0] instruction_bits_sig, ALU_operation;
@@ -33,7 +33,8 @@ CONTROL CONTROL_inst
 	.MemWrite(MemWrite_sig),	// output  MemWrite_sig
 	.ALUSrc(ALUSrc_sig),	// output  ALUSrc_sig
 	.RegWrite(RegWrite_sig), 	// output  RegWrite_sig
-	.AuipcLui(AuipcLui_sig)
+	.AuipcLui(AuipcLui_sig),
+	.Jal(Jal_sig)
 );
 		
 banco_registros banco_registros_inst
@@ -81,7 +82,7 @@ ALU_CONTROL ALU_CONTROL_inst
 	.ALU_control(ALU_operation)
 );
 
-assign PCSrc = zero_sig & Branch_sig; // & Jal; // Esta puerta AND es de 3 entradas zero_sig,  Branch_sig y Jal, si el jal esta activado activa el mux para que pase el pc+4
+assign PCSrc = (zero_sig & Branch_sig) || Jal_sig; // Esta puerta AND es de 3 entradas zero_sig,  Branch_sig y Jal, si el jal esta activado activa el mux para que pase el pc+4
 // La señal Jal y Jal R salen de Alu Control, hay que cambiar ese modulo para que genere esas señales. 
 assign PC_siguiente = (PCSrc) ? (PC + inm_out) : (PC + 4);
 assign valor_B = (ALUSrc_sig) ? inm_out : regis_B; //mux que selecciona entrada B alu
