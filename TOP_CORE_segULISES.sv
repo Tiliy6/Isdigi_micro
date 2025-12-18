@@ -1,21 +1,40 @@
 module TOP_CORE_seg(instr, CLOCK, RST_n, dataram_rd, PC, ena_wr, ena_rd, alu_out_ext, dataram_wr);
 
 input [31:0] instr;
-input [31:0] datareg_wr; //salida mux memtoreg
 input RST_n, CLOCK;
+input  logic [31:0] dataram_rd;
 
 output logic [31:0] PC;
 output logic ena_wr, ena_rd; //entrada habilita ram lectura/escritura
-output logic MemtoReg_sig; //habilita mux de ram
 output logic [31:0] alu_out_ext; //entrada ram
 output logic [31:0] dataram_wr;
 
+logic [31:0] datareg_wr; //salida mux memtoreg
+logic MemtoReg_sig; //habilita mux de ram
 logic [31:0] PC_siguiente;
-logic [31:0] regis_A, regis_B, valor_A, valor_B, inm_out;
-logic ALUSrc_sig, Branch_sig, PCSrc, zero_sig, RegWrite_sig, MemRead_sig, MemWrite_sig, Jal_sig;
-logic [1:0] AuipcLui_sig;
-logic [2:0] ALUOp_sig;
-logic [3:0] instruction_bits_sig, ALU_operation;
+logic [3:0] instruction_bits_sig;
+
+
+logic [31:0] PC_ID, instr_ID, readData1_ID, readData2_ID, inm_out_ID;
+logic        Branch_ID, MemRead_ID, MemWrite_ID, RegWrite_ID, AluSrc_ID, Jal_ID, Jalr_ID;
+logic [1:0]  MemtoReg_ID, AluOp_ID, AuipcLui_ID;
+
+
+logic        RegWrite_EX, Branch_EX, MemRead_EX, MemWrite_EX, AluSrc_EX, Jal_EX, zero_EX;
+logic [1:0]  MemtoReg_EX, AuipcLui_EX, AluOp_EX;
+logic [31:0] PC_EX, readData1_EX, readData2_EX, inm_out_EX, instr_EX, valor_A, valor_B, alu_out_ext_EX, PC_inm;
+
+
+logic        RegWrite_MEM, Branch_MEM, MemRead_MEM, MemWrite_MEM, zero_MEM, Jal_MEM;
+logic [1:0]  MemtoReg_MEM;
+logic [31:0] alu_out_ext_MEM, readData2_MEM, PC_MEM, PC_inm_MEM, instr_MEM;
+
+
+logic        RegWrite_WB;
+logic [1:0]  MemtoReg_WB;
+logic [31:0] alu_out_ext_WB, dataram_rd_WB, instr_WB;
+
+
 
 always_ff @(posedge CLOCK or negedge RST_n)
 	if (!RST_n)
@@ -24,13 +43,15 @@ always_ff @(posedge CLOCK or negedge RST_n)
 		PC <= PC_siguiente;
 
 
-assign PC_siguiente = (PCSrc) ? (PC_inm_MEM) : //Jalr_sig ? alu_out_ext : (PC + 4); ******************REVISAR******************
+//assign PC_siguiente = (PCSrc) ? (PC_inm_MEM) : //Jalr_sig ? alu_out_ext : (PC + 4); ******************REVISAR******************
 
 
-//IF/ID
-always @(posedge CLK)		
+//------------IF/ID------------
+always_ff @(posedge CLOCK)
+	begin
 	PC_ID = PC;
 	instr_ID = instr;
+	end
 
 
 banco_registros banco_registros_inst
@@ -70,7 +91,8 @@ CONTROL CONTROL_inst
 );
 
 //------------ID/EX------------
-always @(posedge CLK)
+always_ff @(posedge CLOCK)
+	begin
 	RegWrite_EX = RegWrite_ID;
 	MemtoReg_EX = MemtoReg_ID;
 	Branch_EX = Branch_ID;
@@ -89,8 +111,9 @@ always @(posedge CLK)
 	inm_out_EX = inm_out_ID;
 	
 	instr_EX = instr_ID;
+	end
 
-
+	
 //Mux 3 a 1 para entrada A de la ALU
     always_comb begin
         case (AuipcLui_EX)
@@ -130,7 +153,8 @@ assign PC_inm = PC_EX + inm_out_EX;
 
 
 //------------EX/MEM------------
-always @(posedge CLK)
+always_ff @(posedge CLOCK)
+	begin
 	RegWrite_MEM = RegWrite_EX;
 	MemtoReg_MEM = MemtoReg_EX;
 	Branch_MEM = Branch_EX;
@@ -143,6 +167,7 @@ always @(posedge CLK)
 	PC_inm_MEM = PC_siguiente;
 	instr_MEM = instr_EX;
 	readData2_MEM = readData2_EX;
+	end
 
 	
 assign PCSrc = (zero_MEM & Branch_MEM) || Jal_MEM;
@@ -152,11 +177,14 @@ assign dataram_wr = readData2_MEM;
 
 
 //------------MEM/WB------------
-always @(posedge CLK)
+always @(posedge CLOCK)
+	begin
+	instr_WB = instr_MEM;
 	RegWrite_WB = RegWrite_MEM;
 	MemtoReg_WB = MemtoReg_MEM;
 	alu_out_ext_WB = alu_out_ext_MEM;
 	dataram_rd_WB = dataram_rd;
+	end
 
 
 assign datareg_wr = (MemtoReg_WB == 2'b01) ? dataram_rd_WB : ((MemtoReg_WB == 2'b00) ? alu_out_ext_WB : PC + 4); //Write data en banco de registros
