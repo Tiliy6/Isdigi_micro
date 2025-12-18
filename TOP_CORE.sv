@@ -39,7 +39,6 @@ CONTROL CONTROL_inst
 	.Jalr(Jalr_sig) ,	// output  Jalr_sig
 	.AuipcLui(AuipcLui_sig) 	// output [1:0] AuipcLui_sig
 );
-);
 		
 banco_registros banco_registros_inst
 (
