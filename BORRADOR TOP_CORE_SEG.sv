@@ -1,6 +1,6 @@
 module TOP_CORE_SEG(
   input  logic        CLOCK,
-  input  logic        RST_n,
+  input  logic        RST_n, 
 
   // Desde IMEM externa (combinacional, direccionada por PC)
   input  logic [31:0] instr,
@@ -8,11 +8,16 @@ module TOP_CORE_SEG(
   // Desde RAM/GP10 externa (dato leído en etapa MEM)
   input  logic [31:0] dataram_rd,
 
+  // Entradas de habilitación y clear
+  input 	logic 		 clear_IFID, EN_IFID,
+  input  logic 		   clear_IDEX, EN_IDEX,
+  input  logic			 clear_EXMEM, EN_EXMEM,
+  
   // Salidas hacia el "exterior"
   output logic [31:0] PC,
   output logic        ena_wr,
   output logic        ena_rd,
-  output logic        MemtoReg_sig,   // debug: MemtoReg en etapa WB
+  output logic [1:0]  MemtoReg_sig,   // debug: MemtoReg en etapa WB
   output logic [31:0] alu_out_ext,    // dirección/result ALU hacia RAM (etapa MEM)
   output logic [31:0] dataram_wr      // datos a escribir en RAM (etapa MEM)
 );
@@ -32,6 +37,8 @@ module TOP_CORE_SEG(
   // ============================================================================
   logic [31:0] IFID_instr;
   logic [31:0] IFID_PC;
+  
+  
 // Aladir las señales de entrada clear_IFID, EN_IFID
   always_ff @(posedge CLOCK or negedge RST_n) begin
     if (!RST_n) begin
@@ -40,7 +47,7 @@ module TOP_CORE_SEG(
     end else if (!clear_IFID)begin
           IFID_instr <= 32'h0000_0013; // NOP (addi x0,x0,0)
           IFID_PC    <= 32'd0;
-    end else if (EN_IFID)
+    end else if (EN_IFID) begin
       IFID_instr <= instr;   // instrucción leída en IF
       IFID_PC    <= PC;      // PC asociado a esa instrucción
     end
@@ -63,7 +70,7 @@ module TOP_CORE_SEG(
   logic [31:0] regis_A_ID, regis_B_ID, inm_out_ID;
 
   logic        ALUSrc_ID, Branch_ID, RegWrite_ID, MemRead_ID, MemWrite_ID, Jal_ID;
-  logic        MemtoReg_ID;
+  logic [1:0]  MemtoReg_ID;
   logic [1:0]  AuipcLui_ID;
   logic [2:0]  ALUOp_ID;
 
@@ -111,7 +118,7 @@ module TOP_CORE_SEG(
   logic [6:0]  IDEX_funct7;
 
   logic        IDEX_ALUSrc, IDEX_Branch, IDEX_RegWrite, IDEX_MemRead, IDEX_MemWrite, IDEX_Jal;
-  logic        IDEX_MemtoReg;
+  logic [1:0]  IDEX_MemtoReg;
   logic [1:0]  IDEX_AuipcLui;
   logic [2:0]  IDEX_ALUOp;
 
@@ -130,7 +137,7 @@ module TOP_CORE_SEG(
       IDEX_RegWrite <= 1'b0;
       IDEX_MemRead  <= 1'b0;
       IDEX_MemWrite <= 1'b0;
-      IDEX_MemtoReg <= 1'b0;
+      IDEX_MemtoReg <= 2'b00;
       IDEX_Jal      <= 1'b0;
       IDEX_AuipcLui <= 2'b00;
       IDEX_ALUOp    <= 3'b000;
@@ -148,11 +155,11 @@ module TOP_CORE_SEG(
       IDEX_RegWrite <= 1'b0;
       IDEX_MemRead  <= 1'b0;
       IDEX_MemWrite <= 1'b0;
-      IDEX_MemtoReg <= 1'b0;
+      IDEX_MemtoReg <= 2'b00;
       IDEX_Jal      <= 1'b0;
       IDEX_AuipcLui <= 2'b00;
       IDEX_ALUOp    <= 3'b000;
-    end else if (EN_IDEX)
+    end else if (EN_IDEX) begin
       IDEX_PC       <= IFID_PC;
       IDEX_A        <= regis_A_ID;
       IDEX_B        <= regis_B_ID;
@@ -217,7 +224,7 @@ module TOP_CORE_SEG(
   assign PCSrc_EX = (zero_EX & IDEX_Branch) || IDEX_Jal;
 
   // PC_next (ojo: branch/jal se decide “tarde” en EX, pero aceptamos eso)
-  assign PC_next = (PCSrc_EX) ? (PC + IDEX_imm) : (PC + 32'd4);
+  assign PC_next = (PCSrc_EX) ? (IDEX_PC + IDEX_imm) : (PC + 32'd4);
 
   // ============================================================================
   // 5) EX/MEM pipeline register (control de MEM + datos para RAM)
@@ -226,32 +233,37 @@ module TOP_CORE_SEG(
   logic [31:0] EXMEM_storeData;
   logic [4:0]  EXMEM_rd;
 
-  logic        EXMEM_MemRead, EXMEM_MemWrite, EXMEM_RegWrite, EXMEM_MemtoReg;
+  logic        EXMEM_MemRead, EXMEM_MemWrite, EXMEM_RegWrite;
+  logic [1:0]	EXMEM_MemtoReg;
+  logic [31:0] EXMEM_PC;
 
   always_ff @(posedge CLOCK or negedge RST_n) begin
     if (!RST_n) begin
       EXMEM_alu       <= 32'd0;
       EXMEM_storeData <= 32'd0;
       EXMEM_rd        <= 5'd0;
+		EXMEM_PC			 <= 32'd0;
 
       EXMEM_MemRead   <= 1'b0;
       EXMEM_MemWrite  <= 1'b0;
       EXMEM_RegWrite  <= 1'b0;
-      EXMEM_MemtoReg  <= 1'b0;
+      EXMEM_MemtoReg  <= 2'b00;
     end else if (!clear_EXMEM) begin
       EXMEM_alu       <= 32'd0;
       EXMEM_storeData <= 32'd0;
       EXMEM_rd        <= 5'd0;
+		EXMEM_PC			 <= 32'd0;
 
       EXMEM_MemRead   <= 1'b0;
       EXMEM_MemWrite  <= 1'b0;
       EXMEM_RegWrite  <= 1'b0;
-      EXMEM_MemtoReg  <= 1'b0;
+      EXMEM_MemtoReg  <= 2'b00;
     end else if (EN_EXMEM) begin 
     
       EXMEM_alu       <= alu_out_EX;
       EXMEM_storeData <= IDEX_B;      // dato rs2 para SW
       EXMEM_rd        <= IDEX_rd;
+		EXMEM_PC			 <= IDEX_PC;
 
       EXMEM_MemRead   <= IDEX_MemRead;
       EXMEM_MemWrite  <= IDEX_MemWrite;
@@ -272,8 +284,10 @@ module TOP_CORE_SEG(
   logic [31:0] MEMWB_memdata;
   logic [31:0] MEMWB_alu;
   logic [4:0]  MEMWB_rd;
+  logic [31:0] MEMWB_PC;
 
-  logic        MEMWB_RegWrite, MEMWB_MemtoReg;
+  logic        MEMWB_RegWrite;
+  logic [1:0]	MEMWB_MemtoReg;
 
   always_ff @(posedge CLOCK or negedge RST_n) begin
     if (!RST_n) begin
@@ -281,13 +295,15 @@ module TOP_CORE_SEG(
       MEMWB_alu      <= 32'd0;
       MEMWB_rd       <= 5'd0;
       MEMWB_RegWrite <= 1'b0;
-      MEMWB_MemtoReg <= 1'b0;
+      MEMWB_MemtoReg <= 2'b00;
+		MEMWB_PC			<= 32'd0;
     end else begin
       MEMWB_memdata  <= dataram_rd;    // viene de RAM/GP10
       MEMWB_alu      <= EXMEM_alu;
       MEMWB_rd       <= EXMEM_rd;
       MEMWB_RegWrite <= EXMEM_RegWrite;
       MEMWB_MemtoReg <= EXMEM_MemtoReg;
+		MEMWB_PC			<= EXMEM_PC;
     end
   end
 
@@ -295,10 +311,17 @@ module TOP_CORE_SEG(
   // 7) WB stage (mux MemtoReg + write regfile)
   // ============================================================================
   assign MemtoReg_sig = MEMWB_MemtoReg; // debug
-  assign writeData_WB = (MEMWB_MemtoReg) ? MEMWB_memdata : MEMWB_alu;
+  
+  always_comb begin
+		case (MEMWB_MemtoReg)
+		2'b00: writeData_WB = MEMWB_alu;	//ALU
+		2'b01: writeData_WB = MEMWB_memdata;	//LW
+		2'b10: writeData_WB = MEMWB_PC + 32'd4;
+		default: writeData_WB = MEMWB_alu;
+		endcase
+	end
   assign rd_WB        = MEMWB_rd;
   assign RegWrite_WB  = MEMWB_RegWrite;
 
 endmodule
-
 
