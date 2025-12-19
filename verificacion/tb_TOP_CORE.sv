@@ -6,12 +6,13 @@ module tb_TOP_CORE();
 	logic CLOCK, RST_n, ena_wr, ena_rd, MemtoReg_sig;
 	
 	logic [31:0] [31:0] registro; //x0=registro[0],x1=registro[1], ect
-	logic [31:0] rs1, rs2, inm_ext_32, expected_addr; // Contenido de 32 bits
+	logic [31:0] rs1, rs2, inm_ext_32, PC_esperado1, PC_esperado2, expected_addr; // Contenido de 32 bits
 	logic [11:0] inm_orshamt, inm;
 	logic [2:0] func3;
 	logic [31:0] resultado_esperado;
 	logic true_false;
 	logic [19:0] inm_tipoU;
+	logic [20:0] inm_Jal;
 	logic [4:0] rd_addr;
 	
 	TOP_CORE duv
@@ -61,7 +62,15 @@ module tb_TOP_CORE();
 			instr[6:0] == 7'b0100011;
 			instr[14:12] == 3'b010;
 		}
-
+		
+		constraint Jal_format {
+			instr[6:0] == 7'b1101111;
+		}
+		
+		constraint Jalr_format {
+			instr[6:0] == 7'b1100111;
+			instr[14:12] == 3'b000;
+		}
 	endclass
 
 
@@ -152,6 +161,29 @@ module tb_TOP_CORE();
 		cruceS: cross inm_cp, rs1_cp;
 	endgroup;
 	
+	covergroup Jal_type;
+		inm_cp: coverpoint $signed({instr[31:12]})	{
+			bins val[4] = {[-524288:524287]};
+		}
+		rd_cp: coverpoint instr[11:7] {
+			bins val[] = {[0:31]};
+		}
+		cruceJal: cross rd_cp, inm_cp;
+	endgroup;
+	
+	covergroup Jalr_type;
+		inm_cp: coverpoint $signed({instr[31:20]})	{
+			bins val[4] = {[-2048:2047]};
+		}
+		rs1_cp: coverpoint instr[19:15] {
+			bins val[4] = {[0:31]};
+		}
+		rd_cp: coverpoint instr[11:7] {
+			bins val[] = {[0:31]};
+		}
+		cruceJalr: cross rd_cp, inm_cp, rs1_cp;
+	endgroup;
+	
 	//Declaracion de objetos
 	instruccionRandom busInst = new;
 	R_type veamosR = new;
@@ -160,6 +192,8 @@ module tb_TOP_CORE();
 	U_type veamosU = new;
 	carga_type veamos_car = new;
 	S_type veamosS = new;
+	Jal_type veamosJal = new;
+	Jalr_type veamosJalr = new;
 	
 	//DEFINICION DEL CLOCK
 	always
@@ -188,6 +222,8 @@ task R_instructions;
 			busInst.U_format.constraint_mode(0);
 			busInst.carga_format.constraint_mode(0);
 			busInst.S_format.constraint_mode(0);
+			busInst.Jalr_format.constraint_mode(0);
+			busInst.Jal_format.constraint_mode(0);
 			
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr; 
@@ -233,6 +269,8 @@ task R_instructions;
 			busInst.U_format.constraint_mode(0);
 			busInst.carga_format.constraint_mode(0);
 			busInst.S_format.constraint_mode(0);
+			busInst.Jalr_format.constraint_mode(0);
+			busInst.Jal_format.constraint_mode(0);
 			
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr;
@@ -274,6 +312,8 @@ task R_instructions;
 			busInst.U_format.constraint_mode(0);
 			busInst.carga_format.constraint_mode(0);
 			busInst.S_format.constraint_mode(0);
+			busInst.Jalr_format.constraint_mode(0);
+			busInst.Jal_format.constraint_mode(0);
 			
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr;
@@ -313,6 +353,8 @@ task R_instructions;
 			busInst.U_format.constraint_mode(1);
 			busInst.carga_format.constraint_mode(0);
 			busInst.S_format.constraint_mode(0);
+			busInst.Jalr_format.constraint_mode(0);
+			busInst.Jal_format.constraint_mode(0);
 			
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr;
@@ -338,6 +380,8 @@ task R_instructions;
 			busInst.U_format.constraint_mode(0);
 			busInst.carga_format.constraint_mode(1);
 			busInst.S_format.constraint_mode(0);
+			busInst.Jalr_format.constraint_mode(0);
+			busInst.Jal_format.constraint_mode(0);
 			
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr;
@@ -369,6 +413,8 @@ task R_instructions;
 			busInst.U_format.constraint_mode(0);
 			busInst.carga_format.constraint_mode(0);
 			busInst.S_format.constraint_mode(1);
+			busInst.Jalr_format.constraint_mode(0);
+			busInst.Jal_format.constraint_mode(0);
 			
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr;
@@ -386,13 +432,78 @@ task R_instructions;
 			assert (ena_wr == 1'b1) else $error("no se habilita la escritura en la RAM");
 			assert (duv.banco_registros_inst.readData2 == rs2) else $error("el dato que se guarda no coincide con el del registro (objetivo)");
 		
-
-
 			veamosS.sample();
 			
 		end
 	endtask
 	
+	task Jal_instructions;
+		begin
+			busInst.R_format.constraint_mode(0);
+			busInst.I_format.constraint_mode(0);
+			busInst.B_format.constraint_mode(0);
+			busInst.U_format.constraint_mode(0);
+			busInst.carga_format.constraint_mode(0);
+			busInst.S_format.constraint_mode(0);
+			busInst.Jalr_format.constraint_mode(0);
+			busInst.Jal_format.constraint_mode(1);
+			
+			assert(busInst.randomize()) else $error("Falló randomize()");
+			instr = busInst.instr;
+			
+			inm_Jal = {instr[31],instr[19:12],instr[20],instr[30:21],1'b0};
+			inm_ext_32 = {{11{instr[31]}}, inm_Jal};
+			rd_addr = instr[11:7];
+			PC_esperado1 = PC + inm_ext_32;
+			PC_esperado2 = PC + 4;
+			@(posedge CLOCK)
+			#2 //ponemos un retardo para evitar condicion de carrera
+			assert (PC_esperado1 == PC) else $error("El salto en PC no se ha realizado de manera correcta");
+			assert (duv.CONTROL_inst.Jal == 1'b1) else $error("Jal no se activa de manera correcta, revisad el Control");
+			if (rd_addr != 0)
+				begin
+					assert (PC_esperado2 == duv.banco_registros_inst.registro[rd_addr]) else $error("no hemos guardado la direccion de retorno correctamente");
+				end
+			veamosJal.sample();
+			
+		end
+	endtask
+	
+	task Jalr_instructions;
+		begin
+			busInst.R_format.constraint_mode(0);
+			busInst.I_format.constraint_mode(0);
+			busInst.B_format.constraint_mode(0);
+			busInst.U_format.constraint_mode(0);
+			busInst.carga_format.constraint_mode(0);
+			busInst.S_format.constraint_mode(0);
+			busInst.Jalr_format.constraint_mode(1);
+			busInst.Jal_format.constraint_mode(0);
+			
+			assert(busInst.randomize()) else $error("Falló randomize()");
+			instr = busInst.instr;
+			
+			inm = instr[31:20];
+			inm_ext_32 = {{20{instr[31]}}, inm};
+			rd_addr = instr[11:7];
+			func3 = instr[14:12];
+			rs1 = registro[instr[19:15]];
+			PC_esperado1 = rs1 + inm_ext_32;
+			PC_esperado2 = PC + 4;
+			
+			@(posedge CLOCK)
+			#2 //ponemos un retardo para evitar condicion de carrera
+			assert (PC_esperado1 == PC) else $error("El salto en PC no se ha realizado de manera correcta");
+			assert (duv.CONTROL_inst.Jalr == 1'b1) else $error("Jalr no se activa de manera correcta, revisad el Control");
+			if (rd_addr != 0)
+				begin
+					assert (PC_esperado2 == duv.banco_registros_inst.registro[rd_addr]) else $error("no hemos guardado la direccion de retorno correctamente");
+				end
+			veamosJalr.sample();
+			
+		end
+	endtask
+
 	
 	task reset;
 		begin
@@ -472,6 +583,26 @@ task R_instructions;
 				 init_registros();
 				 #2
 				 S_instructions;
+			 end
+		
+		@(negedge CLOCK);
+		 while (veamosJal.cruceJal.get_coverage() < 50)
+			
+			 begin
+				 @(posedge CLOCK)
+				 init_registros();
+				 #5
+				 Jal_instructions;
+			 end
+			 
+		@(negedge CLOCK);
+		 while (veamosJalr.cruceJalr.get_coverage() < 50)
+			
+			 begin
+				 @(posedge CLOCK)
+				 init_registros();
+				 #5
+				 Jalr_instructions;
 			 end
 			 
 		$display("Test finished");
