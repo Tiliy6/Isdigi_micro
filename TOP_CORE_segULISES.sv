@@ -42,11 +42,7 @@ always_ff @(posedge CLOCK or negedge RST_n)
 	else 
 		PC <= PC_siguiente;
 
-//assign PC_siguiente = PCSrc ? (PC + inm_out) : // para las señales Jal y Jalr; la señal Jal pone a 1 directamente el PCSrc
-                      Jalr_sig  ? alu_out_ext :
-                              (PC + 4);
-
-//assign PC_siguiente = (PCSrc) ? (PC_inm_MEM) : Jalr_MEM ? alu_out_ext : (PC + 4); ******************REVISAR******************
+assign PC_siguiente = PCSrc ? (PC_inm_MEM) :  Jalr_MEM  ? alu_out_ext_MEM : (PC + 4); // para las señales Jal y Jalr; la señal Jal pone a 1 directamente el PCSrc
 
 
 //------------IF/ID------------
@@ -90,7 +86,7 @@ CONTROL CONTROL_inst
 	.RegWrite(RegWrite_ID),	// output  RegWrite_sig
 	.AuipcLui(AuipcLui_ID),	// output [1:0] AuipcLui_sig
 	.Jal(Jal_ID),
-	.Jalr(Jalr_ID) //******************REVISAR******************
+	.Jalr(Jalr_ID)
 );
 
 //------------ID/EX------------
@@ -105,6 +101,7 @@ always_ff @(posedge CLOCK)
 	AluSrc_EX = AluSrc_ID;
 	AuipcLui_EX = AuipcLui_ID;
 	Jal_EX = Jal_ID;
+	Jalr_EX = Jalr_ID;
 	
 	PC_EX = PC_ID;
 	
@@ -167,7 +164,8 @@ always_ff @(posedge CLOCK)
 	alu_out_ext_MEM = alu_out_ext_EX;
 	PC_MEM = PC_EX;
 	Jal_MEM = Jal_EX;
-	PC_inm_MEM = PC_siguiente;
+	Jalr_MEM = Jalr_EX;
+	PC_inm_MEM = PC_inm;
 	instr_MEM = instr_EX;
 	readData2_MEM = readData2_EX;
 	end
