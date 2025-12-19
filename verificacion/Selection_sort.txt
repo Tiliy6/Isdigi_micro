@@ -3,26 +3,56 @@
     nop
     nop
     lw x9, 0(x9)
+    nop
+    nop
+    nop
     addi x10, x0, 0 #i
     nop
     nop
     nop
     addi x11, x9, -1 #n-2
+    nop
+    nop
+    nop
     addi x12, x0, 0 #minimo
+    nop
+    nop
+    nop
     addi x13, x0, 0	#j
+    nop
+    nop
+    nop
 	addi x14, x0, 0 #puntero del minimo
+    nop
+    nop
+    nop
     addi x15, x0, 0 #valor del puntero j
+    nop
+    nop
+    nop
     la x16, list 	 #i en valor de 4 
     nop
     nop
     nop
     addi x17, x16, 0 #j en valor de 4
+    nop
+    nop
+    nop
     addi x18 x0, 0 #valor de i para intercambiar, auxiliar
+    nop
+    nop
+    nop
 
 
 Loop:
 	addi x14, x16, 0
+    nop
+    nop
+    nop
 	lw x12, 0(x16)
+    nop
+    nop
+    nop
 
 Loop2:
     lw x15, 0(x17)			#cargar (j) para mirar si es inferior
@@ -34,9 +64,18 @@ Loop2:
     nop
     nop
     add x14, x0, x17
+    nop
+    nop
+    nop
     add x12, x0,x15
+    nop
+    nop
+    nop
 No_Cambia:
     addi x13,x13,1 # j = j+1
+    nop
+    nop
+    nop
     addi x17,x17,4 # j_4 = j_4+4
     nop
     nop
@@ -49,20 +88,38 @@ No_Cambia:
 
     
     lw x18, 0(x16) #guarda el valor de i
+    nop
+    nop
+    nop
     sw x12, 0(x16) #cambia el valor de i por el mínimo
     nop
     nop
     nop
     sw x18, 0(x14) #cambia el valor del mínimo por i, intercambia
+    nop
+    nop
+    nop
     addi x8, x8, 4 #puntero +4
+    nop
+    nop
+    nop
     
     addi x10,x10,1 # i = i+1
+    nop
+    nop
+    nop
     addi x16,x16,4 # i_4 = i_4+4
     nop
     nop
     nop
     addi x13, x10, 0	#j = i
+    nop
+    nop
+    nop
     addi x17,x16,0 # j_4 = j_4+4
+    nop
+    nop
+    nop
     
 	bne x10,x11, Loop #if i = n-2 acabar el loop
     nop
@@ -70,4 +127,4 @@ No_Cambia:
     nop
 .data 
 N: .word 10
-list: .word 4,-8,8,-6,7,12,-15,-12,12,-9
+list: .word 4,-8,8,-6,7,12,-15,-12,12,-9	
