@@ -92,7 +92,7 @@ module CONTROL(
 				7'b11001: begin
 					 Jalr 	  = 1;
 					 ALUSrc    = 1;
-					 ALUOp     = 3'b000;
+					 ALUOp     = 3'b011;
 					 RegWrite  = 1;
 					 MemtoReg  = 2'b10;
 				end
