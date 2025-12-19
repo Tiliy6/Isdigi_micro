@@ -42,8 +42,11 @@ always_ff @(posedge CLOCK or negedge RST_n)
 	else 
 		PC <= PC_siguiente;
 
+//assign PC_siguiente = PCSrc ? (PC + inm_out) : // para las señales Jal y Jalr; la señal Jal pone a 1 directamente el PCSrc
+                      Jalr_sig  ? alu_out_ext :
+                              (PC + 4);
 
-//assign PC_siguiente = (PCSrc) ? (PC_inm_MEM) : //Jalr_sig ? alu_out_ext : (PC + 4); ******************REVISAR******************
+//assign PC_siguiente = (PCSrc) ? (PC_inm_MEM) : Jalr_MEM ? alu_out_ext : (PC + 4); ******************REVISAR******************
 
 
 //------------IF/ID------------
