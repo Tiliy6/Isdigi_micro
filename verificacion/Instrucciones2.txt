@@ -9,19 +9,43 @@ nop
 nop
 
 jal x1, Producto
+nop
+nop
+nop
 sw x12, 0(x3)
 beq x0,x0, MAL
 
 Producto:
 blt x9, x10, MAL
+nop
+nop
+nop
 blt x8, x9, MAL
+nop
+nop
+nop
 blt x8, x10, MAL
+nop
+nop
+nop
 
 bltu x10, x8, MAL
+nop
+nop
+nop
 bltu x11, x9, MAL
+nop
+nop
+nop
 
 bgeu x8, x10, MAL
+nop
+nop
+nop
 bgeu x9, x11, MAL
+nop
+nop
+nop
 
 add x12, x8, x10
 nop
@@ -29,8 +53,14 @@ nop
 nop
 
 bltu x12, x10, MAL
+nop
+nop
+nop
 
 jalr x0, 0(x1)
+nop
+nop
+nop
 
 MAL:
 sw x12, 4(x3)
