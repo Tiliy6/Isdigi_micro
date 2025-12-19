@@ -14,8 +14,8 @@ module Inm_Gen (
         OPCODE_STORE  = 7'b0100011, // SW
         OPCODE_BRANCH = 7'b1100011, // BEQ, BNE, BGE
         OPCODE_LUI    = 7'b0110111, // LUI
-        OPCODE_AUIPC  = 7'b0010111; // AUIPC
-        OPCODE_JAL = 7'b1101111; //JAL
+        OPCODE_AUIPC  = 7'b0010111, // AUIPC
+        OPCODE_JAL = 7'b1101111, //JAL
         OPCODE_JALR = 7'b1100111; //JALR
 
     always_comb begin
@@ -58,12 +58,12 @@ module Inm_Gen (
                 // inm[31:0] = inst[31:12] << 12
                 inm = {inst[31:12], 12'b0};
             end
-            OPCODE_JAL: : begin
-                imm = {{11{instr[31]}},   // sign-extend desde imm[20]
-                       instr[31],         // imm[20]
-                       instr[19:12],      // imm[19:12]
-                       instr[20],         // imm[11]
-                       instr[30:21],      // imm[10:1]
+            OPCODE_JAL: begin
+                inm = {{11{inst[31]}},   // sign-extend desde imm[20]
+                       inst[31],         // imm[20]
+                       inst[19:12],      // imm[19:12]
+                       inst[20],         // imm[11]
+                       inst[30:21],      // imm[10:1]
                        1'b0};             // imm[0] = 0
               end
             OPCODE_JALR: begin
