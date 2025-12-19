@@ -1,4 +1,4 @@
-// Fibonacci con el programa del segmentado 
+# Fibonacci con el programa del segmentado 
 
     auipc x3, 65536
     nop                 # NOP: burbuja (espera a que x3 se actualice)
@@ -13,14 +13,17 @@
     addi  x10, x0, 1     # x10=1 (SEGURO)
     addi  x11, x0, 0     # x11=0 (produce x11)
 
-    nop                 # NOP: espera a que x11 se escriba
-    nop                 # NOP: segunda burbuja (seguro sin forwarding)
-    nop
     addi  x12, x0, 0
     addi  x13, x0, 2
+    nop
+    nop
+    nop
 
     sw    x11, 0(x9)     # guarda 0 en [x9]
     sw    x10, 0(x8)     # guarda 1 en [x8]
+    nop
+    nop
+    nop
 
 INICIO:
 
@@ -45,6 +48,9 @@ INICIO:
     nop 
   
     bne   x7, x13, INICIO
+    nop
+    nop
+    nop
     
 .data
     .word 10 
