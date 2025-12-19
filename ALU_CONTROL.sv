@@ -91,20 +91,3 @@ module ALU_CONTROL (ALUOp, instruction_bits, ALU_control);
 	end
 	
 endmodule
-	
-	
-	
-		
-		
-	
-	
-	
-	
-						
-		
-	
-		
-
-
-	
-
