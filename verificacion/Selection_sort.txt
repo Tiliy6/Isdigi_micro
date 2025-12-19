@@ -1,4 +1,4 @@
- 	la x9, N
+ 	auipc x9, 65536
     nop
     nop
     nop
@@ -30,7 +30,7 @@
     nop
     nop
     nop
-    la x16, list 	 #i en valor de 4 
+    la x16, list 	 #i en valor de 4     hay que poner 3 nops en medio de la instruccion, la cual son 2, auipc y addi, 3 nops entre ellas
     nop
     nop
     nop
