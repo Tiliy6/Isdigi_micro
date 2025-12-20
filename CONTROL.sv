@@ -24,7 +24,7 @@ module CONTROL(
         MemWrite  = 0;
         ALUSrc    = 0;
         RegWrite  = 0;
-		  AuipcLui  = 2'b11;
+		  AuipcLui  = 2'b10;
 		  Jalr      = 0;
 		  Jal 		= 0;
         case (opcode)
@@ -105,7 +105,7 @@ module CONTROL(
 				MemWrite  = 0;
 				ALUSrc    = 0;
 				RegWrite  = 0;
-				AuipcLui  = 2'b11;
+				AuipcLui  = 2'b10;
 				Jal 		 = 0;
 				Jalr 		 = 0;
 			end
