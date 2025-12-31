@@ -6,7 +6,7 @@ module tb_TOP_CORE_seg();
 	logic CLOCK, RST_n, ena_wr, ena_rd, MemtoReg_sig;
 	
 	logic [31:0] [31:0] registro; //x0=registro[0],x1=registro[1], ect
-	logic [31:0] rs1, rs2, inm_ext_32, PC_esperado1, PC_esperado2, expected_addr; // Contenido de 32 bits
+	logic [31:0] rs1, rs2, inm_ext_32, PC_esperado1, PC_esperado2, expected_addr, rd_addr_value; // Contenido de 32 bits
 	logic [11:0] inm_orshamt, inm;
 	logic [2:0] func3;
 	logic [31:0] resultado_esperado;
@@ -374,12 +374,13 @@ task R_instructions;
 			instr = busInst.instr;
 			
 			inm_tipoU = instr[31:12];
+			//repeat(5) @(negedge CLOCK);
 			if (instr[6:0] == 7'b0010111)
 				resultado_esperado = {inm_tipoU, 12'b0} + PC; //AUIPC
 			else	
 				resultado_esperado = {inm_tipoU, 12'b0};
 			
-			@(posedge CLOCK)
+			repeat(4) @(negedge CLOCK);
 			assert (resultado_esperado == alu_out_ext) else $error("operacion tipo U mal realizada");
 			veamosU.sample();
 			
@@ -400,13 +401,15 @@ task R_instructions;
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr;
 			
+
+			
+			//expected_addr = rs1 + {{20{inm[11]}},inm}; //para comprobar que la direccion esperada coincide con la que usamos en memoria
+			
+			repeat(5) @(negedge CLOCK);
 			inm = instr[31:20];
 			rs1 = registro[instr[19:15]];
 			rd_addr = instr[11:7];
-			
 			expected_addr = rs1 + {{20{inm[11]}},inm}; //para comprobar que la direccion esperada coincide con la que usamos en memoria
-			
-			@(posedge CLOCK)
 			assert (expected_addr == alu_out_ext) else $error("la direccion en la operacion de carga no es correcta");
 			assert (duv.banco_registros_inst.RegWrite == 1'b1) else $error("el banco de registros no lee ninguna palabra");
 			assert (duv.CONTROL_inst.ALUSrc == 1'b1) else $error("el inmediato no se usa en el calculo de la direccion");
@@ -439,7 +442,7 @@ task R_instructions;
 			
 			expected_addr = rs1 + {{20{inm[11]}},inm}; //para comprobar que la direccion esperada coincide con la que usamos en memoria
 			
-			@(posedge CLOCK)
+			repeat(5) @(negedge CLOCK);
 			assert (expected_addr == alu_out_ext) else $error("la direccion en la operacion de store word no es correcta");
 			assert (duv.banco_registros_inst.RegWrite == 1'b0) else $error("el banco de registros no debe leer ninguna palabra");
 			assert (duv.CONTROL_inst.ALUSrc == 1'b1) else $error("el inmediato no se usa en el calculo de la direccion");
@@ -470,13 +473,15 @@ task R_instructions;
 			rd_addr = instr[11:7];
 			PC_esperado1 = PC + inm_ext_32;
 			PC_esperado2 = PC + 4;
-			@(posedge CLOCK)
-			#2 //ponemos un retardo para evitar condicion de carrera
+			repeat(5) @(negedge CLOCK);
 			assert (PC_esperado1 == PC) else $error("El salto en PC no se ha realizado de manera correcta");
 			assert (duv.CONTROL_inst.Jal == 1'b1) else $error("Jal no se activa de manera correcta, revisad el Control");
+			@(negedge CLOCK);
+			rd_addr_value = duv.banco_registros_inst.registro[rd_addr];
+			#2
 			if (rd_addr != 0)
 				begin
-					assert (PC_esperado2 == duv.banco_registros_inst.registro[rd_addr]) else $error("no hemos guardado la direccion de retorno correctamente");
+					assert (PC_esperado2 == rd_addr_value) else $error("no hemos guardado la direccion de retorno correctamente");
 				end
 			veamosJal.sample();
 			
@@ -501,17 +506,19 @@ task R_instructions;
 			inm_ext_32 = {{20{instr[31]}}, inm};
 			rd_addr = instr[11:7];
 			func3 = instr[14:12];
+			PC_esperado2 = PC + 4;
+			repeat(2) @(negedge CLOCK);
 			rs1 = registro[instr[19:15]];
 			PC_esperado1 = rs1 + inm_ext_32;
-			PC_esperado2 = PC + 4;
-			
-			@(posedge CLOCK)
-			#2 //ponemos un retardo para evitar condicion de carrera
+			repeat(3) @(negedge CLOCK);
 			assert (PC_esperado1 == PC) else $error("El salto en PC no se ha realizado de manera correcta");
 			assert (duv.CONTROL_inst.Jalr == 1'b1) else $error("Jalr no se activa de manera correcta, revisad el Control");
+			@(negedge CLOCK);
+			rd_addr_value = duv.banco_registros_inst.registro[rd_addr];
+			#2
 			if (rd_addr != 0)
 				begin
-					assert (PC_esperado2 == duv.banco_registros_inst.registro[rd_addr]) else $error("no hemos guardado la direccion de retorno correctamente");
+					assert (PC_esperado2 == rd_addr_value) else $error("no hemos guardado la direccion de retorno correctamente");
 				end
 			veamosJalr.sample();
 			
@@ -538,7 +545,7 @@ task R_instructions;
 		// Inicializamos memoria		
 		reset();
 		
-		@(negedge CLOCK);
+ 		@(negedge CLOCK);
 		while (veamosR.cruceR.get_coverage() < 70)
 			
 			begin
@@ -576,44 +583,28 @@ task R_instructions;
 				#2
 				B_instructions;
 			end
-/* 
-		 @(negedge CLOCK);
-		 while (veamosI.cruceI.get_coverage() < 70)
 			
-			 begin
-				 @(posedge CLOCK)
-				 init_registros();
-				 #2
-				 I_instructions;
-			 end
-			 
-		 @(negedge CLOCK);
-		 while (veamosB.cruceB.get_coverage() < 100)
+		@(negedge CLOCK);
+		while (veamosU.cruceU.get_coverage() < 100)
 			
-			 begin
-				 @(posedge CLOCK)
-				 init_registros();
-				 #5
-				 B_instructions;
-			 end
-			 
-		 @(negedge CLOCK);
-		 while (veamosU.cruceU.get_coverage() < 100)
+			begin
+				// #5
+				// reset();
+				repeat(4) @(posedge CLOCK);
+				init_registros();
+				repeat(15) @(posedge CLOCK);
+				#2
+				U_instructions;
+			end 
 			
-			 begin
-				 @(posedge CLOCK)
-				 init_registros();
-				 #2
-				 U_instructions;
-			 end
-			 
 		 @(negedge CLOCK);
 		 while (veamos_car.cruce_carg.get_coverage() < 50)
 			
 			 begin
-				 @(posedge CLOCK)
-				 init_registros();
-				 #2
+				repeat(4) @(posedge CLOCK);
+				init_registros();
+				repeat(15) @(posedge CLOCK);
+				#2
 				 carga_instructions;
 			 end
 			 
@@ -621,32 +612,35 @@ task R_instructions;
 		 while (veamosS.cruceS.get_coverage() < 50)
 			
 			 begin
-				 @(posedge CLOCK)
-				 init_registros();
-				 #2
+				repeat(4) @(posedge CLOCK);
+				init_registros();
+				repeat(15) @(posedge CLOCK);
+				#2
 				 S_instructions;
 			 end
-		
+ 
 		@(negedge CLOCK);
 		 while (veamosJal.cruceJal.get_coverage() < 50)
 			
 			 begin
-				 @(posedge CLOCK)
-				 init_registros();
-				 #5
+				repeat(4) @(posedge CLOCK);
+				init_registros();
+				repeat(15) @(posedge CLOCK);
+				#2
 				 Jal_instructions;
 			 end
-			 
+		 
 		@(negedge CLOCK);
 		 while (veamosJalr.cruceJalr.get_coverage() < 50)
 			
 			 begin
-				 @(posedge CLOCK)
-				 init_registros();
-				 #5
+				repeat(4) @(posedge CLOCK);
+				init_registros();
+				repeat(15) @(posedge CLOCK);
+				#5
 				 Jalr_instructions;
 			 end
-*/			 
+		 
 		$display("Test finished");
 		$stop;	
 	end
