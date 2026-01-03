@@ -47,6 +47,12 @@ module tb_TOP_CORE();
 		
 		constraint B_format {
 			instr[6:0] == 7'b1100011;
+			instr[14:12] == 3'b000 ||
+			instr[14:12] == 3'b001 ||
+			instr[14:12] == 3'b100 ||
+			instr[14:12] == 3'b101 ||
+			instr[14:12] == 3'b110 ||
+			instr[14:12] == 3'b111;		
 		}
 		
 		constraint U_format {
