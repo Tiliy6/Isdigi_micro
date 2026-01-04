@@ -1,0 +1,36 @@
+# El programa es un programa sencillo que mueve un led dhacia la izquierda o derecha. Si el switch esta activado se muede a la izquierda y si esta desactivado se mueve hacia la derecha.
+# La direccion del led son los 8 numeros hexadecimales en la primera direccion de la memoria que concuerdan con los 8 leds. Y el valor del switch se guarda en la segunda direccion de la memoria.
+#Para el pin planner solo hacen falta los LEDS, 1 switch(preferiblemente el de la derecha), el CLOCK, RSTn y el ENABLE.
+    
+    auipc x9, 65536 #direccion 0 de la memoria
+    addi x10, x0, 1 #led el cual se va moviendo de izquierda a derecha mediante los srli y slli
+    addi x11, x0, 0 #valor de switch; 1 cuando esta activo y 0 cuando no. Realmente cualquier valor diferente a 0 sirve.
+    addi x12, x9, 4 #puntero a direccion 4 donde esta el valor del switch
+    
+    sw x10, 0(x9)
+    
+LEDR:    #desplazamiento a derechas
+	lw x11, 0(x12)
+	bne x11, x0, LEDI
+    slli x10, x10, 4
+    bne x10, x0, SIGUER  #si se ha desplazado de mas 
+    addi x10, x0, 1  
+SIGUER:
+    sw x10, 0(x9)
+    jal x5, LEDR
+    
+    
+    
+    
+LEDI:    #desplazamiento a izquierdas
+	lw x11, 0(x12)
+	beq x11, x0, LEDR
+    srli x10, x10, 4
+    bne x10, x0, SIGUEI  #si se ha desplazado de mas 
+    addi x10, x9, 0  
+SIGUEI:
+    sw x10, 0(x9)
+    jal x5, LEDI
+	    
+        
+        
