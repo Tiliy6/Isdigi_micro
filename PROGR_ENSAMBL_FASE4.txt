@@ -2,20 +2,21 @@
 .globl main
 
 main:
-    # GPIO base = 0x1000
+    # GPIO base = 0x1000 (word_index==1024)
     lui   x3, 0x1
 
-    # x7 = 5000 (para delay)
+    # delay_count = 5000
     lui   x7, 0x1
-    addi  x7, x7, 904
+    addi  x7, x7, 904      # 4096 + 904 = 5000
 
 loop:
-    lw    x5, 0(x3)      # leer switches (según GPIO)
-    sw    x5, 0(x3)      # escribir LEDs/7seg (según GPIO)
+    lw    x5, 0(x3)        # lee SW (GP10 read reg)
+    sw    x5, 0(x3)        # escribe LEDR/HEX (GP10 write reg)
 
     addi  x6, x0, 0
 delay:
     addi  x6, x6, 1
     bne   x6, x7, delay
 
-    beq   x0, x0, loop   # salto infinito
+    beq   x0, x0, loop
+
