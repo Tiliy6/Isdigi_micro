@@ -10,8 +10,8 @@ main:
     addi  x7, x7, 904
 
 loop:
-    lw    x5, 0(x3)      # leer switches (según tu GPIO)
-    sw    x5, 0(x3)      # escribir LEDs/7seg (según tu GPIO)
+    lw    x5, 0(x3)      # leer switches (según GPIO)
+    sw    x5, 0(x3)      # escribir LEDs/7seg (según GPIO)
 
     addi  x6, x0, 0
 delay:
