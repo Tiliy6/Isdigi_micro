@@ -1,32 +1,21 @@
-# ---------------------------------------------------------
-# TinuC / DE2-115 "Hola mundo" hardware
-# GPIO base = 0x00001000 (RAM(1024 words) acaba en 0x0FFC)
-# - LW  desde GPIO -> lee SW (en low 16 bits típicamente)
-# - SW  a GPIO     -> escribe LEDR / 7seg (low 16 bits)
-# ---------------------------------------------------------
-
 .text
 .globl main
 
 main:
-    # x3 = base GPIO = 0x1000
-    lui   x3, 0x1          # x3 = 0x00001000
+    # GPIO base = 0x1000
+    lui   x3, 0x1
+
+    # x7 = 5000 (para delay)
+    lui   x7, 0x1
+    addi  x7, x7, 904
 
 loop:
-    # Leer switches (GPIO read register)
-    lw    x5, 0(x3)        # x5 = SW (lo que GPIO devuelva)
+    lw    x5, 0(x3)      # leer switches (según tu GPIO)
+    sw    x5, 0(x3)      # escribir LEDs/7seg (según tu GPIO)
 
-    # Escribir a LEDs (GPIO write register)
-    sw    x5, 0(x3)        # LEDR = x5[15:0] (según GPIO)
-
-    # Delay simple (para que sea visible)
-    addi  x6, x0, 0        # x6 = 0
+    addi  x6, x0, 0
 delay:
     addi  x6, x6, 1
-    addi  x7, x0, 5000     # ajusta este número si va muy rápido/lento
     bne   x6, x7, delay
 
-    # Repetir
-    bne   x0, x0, loop     # truco: siempre falso? -> NO
-    # Mejor salto infinito sin JAL:
-    beq   x0, x0, loop     # siempre verdadero
+    beq   x0, x0, loop   # salto infinito
