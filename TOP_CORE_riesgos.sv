@@ -39,18 +39,12 @@ logic [31:0] PC4_WB ,alu_out_ext_WB, dataram_rd_WB, instr_WB;
 //FORWARDING UNIT
 logic [1:0] ForwardA, ForwardB;
 logic [4:0] sourceA_EX, sourceB_EX, destino_MEM, destino_WB;
-logic [31:0] readData2_EX_fwd, A_fwd, bypass_MEM;
+logic [31:0] readData2_EX_fwd, A_fwd;
 
 //HAZARD UNIT
 logic stall, PCWrite, IFIDWrite, usa_source2_ID;
 logic [4:0] source1_ID, source2_ID, destino_EX;
 logic [6:0] opcode_ID;
-
-//FLUSH
-logic flush_IFID, flush_IDEX, ctrl_taken, flush_EXMEM;
-
-logic branch_taken_MEM;
-logic [2:0] funct3_MEM;
 
 
 
@@ -64,11 +58,6 @@ always_ff @(posedge CLOCK or negedge RST_n)
 
 assign PC_siguiente = Jalr_MEM ? alu_out_ext_MEM : PCSrc ? PC_inm_MEM : (PC + 4); // para las señales Jal y Jalr; la señal Jal pone a 1 directamente el PCSrc
 
-assign ctrl_taken = PCSrc || Jalr_MEM;
-assign flush_IFID = ctrl_taken;
-assign flush_IDEX = ctrl_taken;
-assign flush_EXMEM  = ctrl_taken;
-
 
 //------------IF/ID + RST------------
 always_ff @(posedge CLOCK or negedge RST_n)
@@ -76,11 +65,6 @@ always_ff @(posedge CLOCK or negedge RST_n)
 	if (!RST_n)
 		begin
 		PC_ID <= '0;
-		instr_ID <= '0;
-		end
-	else if (flush_IFID) begin
-		PC_ID    <= '0;
-		instr_ID <= 32'b0;
 		end
 	else if (IFIDWrite) //podemos congelar el registro con IFIDWrite
 		begin
@@ -127,18 +111,15 @@ CONTROL CONTROL_inst
 );
 
 //HAZARD DETECTION
-assign source1_ID = instr_ID[19:15];
-assign source2_ID = instr_ID[24:20];
-assign destino_EX = instr_EX[11:7];
 assign opcode_ID = instr_ID[6:0];
 
 assign usa_source2_ID = (opcode_ID == 7'b0110011) || //Tipo R
 							(opcode_ID == 7'b0100011) || //Tipo S
 							(opcode_ID == 7'b1100011); //Tipo B
 							
-assign stall = MemRead_EX && (destino_EX != 5'd0) && ((destino_EX == source1_ID) || (usa_source2_ID && (destino_EX == source2_ID)));
+assign stall = MemRead_EX && (destino_EX != 5'd0) && ((destino_EX == instr_ID[19:15]) || (usa_source2_ID && (destino_EX == instr_ID[24:20])));
 
-assign PCWrite   = ctrl_taken ? 1'b1 : !stall;
+assign PCWrite   = !stall;
 assign IFIDWrite = !stall;
 
 
@@ -161,24 +142,7 @@ begin
 		readData1_EX <= 0;
 		readData2_EX <= 0;
 		inm_out_EX <= 0;
-		instr_EX <= 0;
-	end
-	else if (flush_IDEX) begin
-		RegWrite_EX <= 0;
-		MemtoReg_EX <= 0;
-		Branch_EX <= 0;
-		MemRead_EX <= 0;
-		MemWrite_EX <= 0;
-		AluOp_EX <= 0;
-		AluSrc_EX <= 0;
-		AuipcLui_EX <= 0;
-		Jal_EX <= 0;
-		Jalr_EX <= 0;
-		PC_EX <= 0;
-		readData1_EX <= 0;
-		readData2_EX <= 0;
-		inm_out_EX <= 0;
-		instr_EX <= 0;
+		destino_EX <= 0;
 	end
 	else if (stall) //NOP
 	begin
@@ -192,10 +156,6 @@ begin
 		AuipcLui_EX <= 0;
 		Jal_EX <= 0;
 		Jalr_EX <= 0;
-		PC_EX <= 0;
-		readData1_EX <= 0;
-		readData2_EX <= 0;
-		inm_out_EX <= 0;
 		instr_EX <= 0;
 	end
 	else
@@ -219,6 +179,7 @@ begin
 		inm_out_EX <= inm_out_ID;
 	
 		instr_EX <= instr_ID;
+		destino_EX <= instr_ID[11:7];
 	end
 end
 
@@ -231,31 +192,30 @@ assign destino_MEM = instr_MEM[11:7];
 assign destino_WB  = instr_WB[11:7];
 
 always_comb begin
-    if (RegWrite_MEM && (destino_MEM != 5'd0) && (destino_MEM == sourceA_EX))
+    if (RegWrite_MEM && (destino_MEM != 5'b0) && (destino_MEM == sourceA_EX))
         ForwardA = 2'b10;
-    else if (RegWrite_WB && (destino_WB != 5'd0) && (destino_WB == sourceA_EX))
+    else if (RegWrite_WB && (destino_WB != 5'b0) && (destino_WB == sourceA_EX))
         ForwardA = 2'b01;
     else
         ForwardA = 2'b00;
 end
 
 always_comb begin
-    if (RegWrite_MEM && (destino_MEM != 5'd0) && (destino_MEM == sourceB_EX))
+    if (RegWrite_MEM && (destino_MEM != 5'b0) && (destino_MEM == sourceB_EX))
         ForwardB = 2'b10;
-    else if (RegWrite_WB && (destino_WB != 5'd0) && (destino_WB == sourceB_EX))
+    else if (RegWrite_WB && (destino_WB != 5'b0) && (destino_WB == sourceB_EX))
         ForwardB = 2'b01;
     else
         ForwardB = 2'b00;
 end
 
 
-assign bypass_MEM = MemRead_MEM ? dataram_rd : alu_out_ext_MEM;
-assign readData2_EX_fwd = (ForwardB == 2'b10) ? bypass_MEM : (ForwardB == 2'b01) ? datareg_wr : readData2_EX; //para obtener readData2 con forwarding (store forwarding)
+assign readData2_EX_fwd = (ForwardB == 2'b10) ? alu_out_ext_MEM : (ForwardB == 2'b01) ? datareg_wr : readData2_EX; //para obtener readData2 con forwarding (store forwarding)
 
 
 //Mux 3 a 1 para entrada A de la ALU
 
-	 assign A_fwd = (ForwardA == 2'b10) ? bypass_MEM : (ForwardA == 2'b01) ? datareg_wr : readData1_EX;
+	 assign A_fwd = (ForwardA == 2'b10) ? alu_out_ext_MEM : (ForwardA == 2'b01) ? datareg_wr : readData1_EX;
 	 
     always_comb begin
         case (AuipcLui_EX)
@@ -275,7 +235,7 @@ ALU ALU_inst
 	.B(valor_B),	// mux indica si ReadData2 o immGen, seleccion=ALUSrc
 	.ALU_control(ALU_operation),	// controlado por modulo alu control
 	.ALU_result(alu_out_ext_EX),	// decision del salto
-	.zero(zero_EX) 	// output  zero_sig
+	.zero(zero_EX)		// output  zero_sig
 );
 
 
@@ -310,23 +270,6 @@ begin
 		Jalr_MEM <= 0;
 		PC_inm_MEM <= 0;
 		readData2_MEM <= 0;
-		instr_MEM <= 0;
-	end
-	else if (flush_EXMEM)
-	begin
-		PC4_MEM <= 0;
-		RegWrite_MEM <= 0;
-		MemtoReg_MEM <= 0;
-		Branch_MEM <= 0;
-		MemRead_MEM <= 0;
-		MemWrite_MEM <= 0;
-		zero_MEM <= 0;
-		alu_out_ext_MEM <= 0;
-		Jal_MEM <= 0;
-		Jalr_MEM <= 0;
-		PC_inm_MEM <= 0;
-		readData2_MEM <= 0;
-		instr_MEM <= 0;
 	end
 	else
 	begin
@@ -346,29 +289,11 @@ begin
 	end
 end
 
-assign funct3_MEM = instr_MEM[14:12];
-
-
-always_comb begin
-	branch_taken_MEM = 1'b0;
-	if (Branch_MEM) begin
-		case (funct3_MEM)
-			3'b000: branch_taken_MEM = zero_MEM;
-			3'b001: branch_taken_MEM = zero_MEM;
-			3'b100: branch_taken_MEM = alu_out_ext_MEM[0];
-			3'b110: branch_taken_MEM = alu_out_ext_MEM[0];
-			3'b101: branch_taken_MEM = !alu_out_ext_MEM[0];
-			3'b111: branch_taken_MEM = !alu_out_ext_MEM[0];
-			default: branch_taken_MEM = 1'b0;
-		endcase
-	end
-end
-
 	
-assign PCSrc = branch_taken_MEM || Jal_MEM;
+assign PCSrc = (zero_MEM & Branch_MEM) || Jal_MEM;
 assign ena_wr = MemWrite_MEM;
 assign ena_rd = MemRead_MEM;
-assign dataram_wr = (MemWrite_MEM && RegWrite_WB && (destino_WB != 5'd0) && (destino_WB == instr_MEM[24:20])) ? datareg_wr : readData2_MEM;
+assign dataram_wr = readData2_MEM;
 
 
 
@@ -378,7 +303,6 @@ begin
 	if (!RST_n)
 	begin
 		PC4_WB <= 0;
-		instr_WB <= 0;
 		RegWrite_WB <= 0;
 		MemtoReg_WB <= 0;
 		alu_out_ext_WB <= 0;
