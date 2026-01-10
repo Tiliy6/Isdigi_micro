@@ -47,7 +47,10 @@ logic [4:0] source1_ID, source2_ID, destino_EX;
 logic [6:0] opcode_ID;
 
 //FLUSH
-logic flush_IFID, flush_IDEX, ctrl_taken; 
+logic flush_IFID, flush_IDEX, ctrl_taken, flush_EXMEM;
+
+logic branch_taken_MEM;
+logic [2:0] funct3_MEM;
 
 
 
@@ -63,7 +66,8 @@ assign PC_siguiente = Jalr_MEM ? alu_out_ext_MEM : PCSrc ? PC_inm_MEM : (PC + 4)
 
 assign ctrl_taken = PCSrc || Jalr_MEM;
 assign flush_IFID = ctrl_taken;
-assign flush_IDEX = ctrl_taken; 
+assign flush_IDEX = ctrl_taken;
+assign flush_EXMEM  = ctrl_taken;
 
 
 //------------IF/ID + RST------------
@@ -308,6 +312,22 @@ begin
 		readData2_MEM <= 0;
 		instr_MEM <= 0;
 	end
+	else if (flush_EXMEM)
+	begin
+		PC4_MEM <= 0;
+		RegWrite_MEM <= 0;
+		MemtoReg_MEM <= 0;
+		Branch_MEM <= 0;
+		MemRead_MEM <= 0;
+		MemWrite_MEM <= 0;
+		zero_MEM <= 0;
+		alu_out_ext_MEM <= 0;
+		Jal_MEM <= 0;
+		Jalr_MEM <= 0;
+		PC_inm_MEM <= 0;
+		readData2_MEM <= 0;
+		instr_MEM <= 0;
+	end
 	else
 	begin
 		PC4_MEM <= PC4;
@@ -326,11 +346,29 @@ begin
 	end
 end
 
+assign funct3_MEM = instr_MEM[14:12];
+
+
+always_comb begin
+	branch_taken_MEM = 1'b0;
+	if (Branch_MEM) begin
+		case (funct3_MEM)
+			3'b000: branch_taken_MEM = zero_MEM;
+			3'b001: branch_taken_MEM = zero_MEM;
+			3'b100: branch_taken_MEM = alu_out_ext_MEM[0];
+			3'b110: branch_taken_MEM = alu_out_ext_MEM[0];
+			3'b101: branch_taken_MEM = !alu_out_ext_MEM[0];
+			3'b111: branch_taken_MEM = !alu_out_ext_MEM[0];
+			default: branch_taken_MEM = 1'b0;
+		endcase
+	end
+end
+
 	
-assign PCSrc = (zero_MEM & Branch_MEM) || Jal_MEM;
+assign PCSrc = branch_taken_MEM || Jal_MEM;
 assign ena_wr = MemWrite_MEM;
 assign ena_rd = MemRead_MEM;
-assign dataram_wr = (RegWrite_WB && (destino_WB != 5'd0) && (destino_WB == instr_MEM[24:20])) ? datareg_wr : readData2_MEM;
+assign dataram_wr = (MemWrite_MEM && RegWrite_WB && (destino_WB != 5'd0) && (destino_WB == instr_MEM[24:20])) ? datareg_wr : readData2_MEM;
 
 
 
