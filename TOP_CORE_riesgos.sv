@@ -42,7 +42,7 @@ logic [4:0] sourceA_EX, sourceB_EX, destino_MEM, destino_WB;
 logic [31:0] readData2_EX_fwd, A_fwd;
 
 //HAZARD UNIT
-logic stall, PCWrite, IFIDWrite, usa_source2_ID;
+logic stall, PCWrite, IFIDWrite, usa_source2_ID, IFIDFlush;
 logic [4:0] source1_ID, source2_ID, destino_EX;
 logic [6:0] opcode_ID;
 
@@ -61,17 +61,24 @@ assign PC_siguiente = Jalr_MEM ? alu_out_ext_MEM : PCSrc ? PC_inm_MEM : (PC + 4)
 
 //------------IF/ID + RST------------
 always_ff @(posedge CLOCK or negedge RST_n)
-	begin
+begin
 	if (!RST_n)
-		begin
-		PC_ID <= '0;
-		end
-	else if (IFIDWrite) //podemos congelar el registro con IFIDWrite
-		begin
-		PC_ID    <= PC;
-      instr_ID <= instr;
-		end
+	begin
+		PC_ID    <= '0;
+		instr_ID <= 32'b0;
 	end
+	else if (IFIDFlush)
+	begin
+		// Insertar NOP
+		PC_ID    <= PC;       // no es crítico
+		instr_ID <= 32'b0;
+	end
+	else if (IFIDWrite)
+	begin
+		PC_ID    <= PC;
+		instr_ID <= instr;
+	end
+end
 
 
 banco_registros banco_registros_inst
@@ -112,6 +119,7 @@ CONTROL CONTROL_inst
 
 //HAZARD DETECTION
 assign opcode_ID = instr_ID[6:0];
+assign IFIDFlush = PCSrc || Jalr_MEM;
 
 assign usa_source2_ID = (opcode_ID == 7'b0110011) || //Tipo R
 							(opcode_ID == 7'b0100011) || //Tipo S
@@ -138,11 +146,11 @@ begin
 		AuipcLui_EX <= 0;
 		Jal_EX <= 0;
 		Jalr_EX <= 0;
-		PC_EX <= 0;
-		readData1_EX <= 0;
-		readData2_EX <= 0;
-		inm_out_EX <= 0;
-		destino_EX <= 0;
+		//PC_EX <= 0;
+		//readData1_EX <= 0;
+		//readData2_EX <= 0;
+		//inm_out_EX <= 0;
+		//destino_EX <= 0;
 	end
 	else if (stall) //NOP
 	begin
@@ -188,8 +196,6 @@ assign PC4 = PC_EX + 4;
 //FORWARDING UNIT
 assign sourceA_EX = instr_EX[19:15];
 assign sourceB_EX = instr_EX[24:20];
-assign destino_MEM = instr_MEM[11:7];
-assign destino_WB  = instr_WB[11:7];
 
 always_comb begin
     if (RegWrite_MEM && (destino_MEM != 5'b0) && (destino_MEM == sourceA_EX))
@@ -286,6 +292,7 @@ begin
 		PC_inm_MEM <= PC_inm;
 		instr_MEM <= instr_EX;
 		readData2_MEM <= readData2_EX_fwd;
+    destino_MEM <= destino_EX;
 	end
 end
 
@@ -316,6 +323,7 @@ begin
 		MemtoReg_WB <= MemtoReg_MEM;
 		alu_out_ext_WB <= alu_out_ext_MEM;
 		dataram_rd_WB <= dataram_rd;
+    destino_WB <= destino_MEM;
 	end
 end
 
