@@ -119,6 +119,7 @@ CONTROL CONTROL_inst
 
 //HAZARD DETECTION
 assign opcode_ID = instr_ID[6:0];
+assign IFIDFlush = PCSrc || Jalr_MEM;
 
 assign usa_source2_ID = (opcode_ID == 7'b0110011) || //Tipo R
 							(opcode_ID == 7'b0100011) || //Tipo S
