@@ -52,8 +52,8 @@ module ALU (
     (ALU_control == 4'b1010) ? (ALU_result != 0) :      // BNE  → distinto
     (ALU_control == 4'b1001) ? (ALU_result == 1) :      // BLT  → SLT = 1
     (ALU_control == 4'b1000) ? (ALU_result == 1) :      // BLTU → SLTU = 1
-	(ALU_control == 4'b1011) ? (ALU_result == 0) :      // BGE  → SLT = 0
-	(ALU_control == 4'b1100) ? (ALU_result == 0) :      // BGEU → SLTU = 0
+	(ALU_control == 4'b1100) ? (ALU_result == 0) :      // BGE  → SLT = 0
+	(ALU_control == 4'b1011) ? (ALU_result == 0) :      // BGEU → SLTU = 0
     1'b0;                                               // resto (no branch)
 
 endmodule
