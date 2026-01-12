@@ -433,9 +433,9 @@ module tb_CORE_seg_gmodel();
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr;
 			
-			@(negedge CLOCK);
+			repeat(2) @(negedge CLOCK);
 			resultado_singlecy = PC;
-			repeat(4) @(negedge CLOCK);
+			repeat(3) @(negedge CLOCK);
 			assert (resultado_singlecy == PC_seg) else $error("El salto en PC no se ha realizado de manera correcta");
 	
 			veamosJal.sample();
@@ -457,9 +457,9 @@ module tb_CORE_seg_gmodel();
 			assert(busInst.randomize()) else $error("Falló randomize()");
 			instr = busInst.instr;
 			
-			@(negedge CLOCK);
-			resultado_singlecy = PC;
 			repeat(2) @(negedge CLOCK);
+			resultado_singlecy = PC;
+			repeat(3) @(negedge CLOCK);
 			assert (resultado_singlecy == PC_seg) else $error("El salto en PC no se ha realizado de manera correcta");
 
 			veamosJalr.sample();
@@ -565,6 +565,7 @@ module tb_CORE_seg_gmodel();
 		 while (veamosJal.cruceJal.get_coverage() < 50)
 			
 			 begin
+				repeat(2) @(negedge CLOCK);
 				reset();
 				repeat(4) @(posedge CLOCK);
 				init_registros();
@@ -577,6 +578,7 @@ module tb_CORE_seg_gmodel();
 		 while (veamosJalr.cruceJalr.get_coverage() < 50)
 			
 			 begin
+				repeat(2) @(negedge CLOCK);
 				reset();
 				repeat(4) @(posedge CLOCK);
 				init_registros();
